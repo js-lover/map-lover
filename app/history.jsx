@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-const history = () => {
+const index = () => {
   return (
     <SafeAreaView>
       <Text>history</Text>
@@ -10,6 +10,6 @@ const history = () => {
   )
 }
 
-export default history
+export default index
 
 const styles = StyleSheet.create({})
