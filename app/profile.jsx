@@ -1,19 +1,19 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { Link } from 'expo-router'
+import { StyleSheet, View } from 'react-native';
+import React from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Link } from 'expo-router';
+import { Layout } from '@ui-kitten/components';
+import { UserInfoComponent, UserAverageStats, StatsComponent } from '../components';
 
-const index = () => {
+const profile = () => {
   return (
-    <SafeAreaView>
-    <Text>profile</Text>
-  
-    
+    <Layout style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', width: '100%' }}>
+        <UserInfoComponent />
+        <UserAverageStats />
+    </Layout>
+  );
+};
 
-    </SafeAreaView>
-  )
-}
+export default profile;
 
-export default index
-
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({});
