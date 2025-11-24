@@ -6,34 +6,27 @@ import { StyleSheet } from 'react-native';
 import { useState } from 'react';
 import { EvaIconsPack } from '@ui-kitten/eva-icons';
 
-
 export default function TabLayout() {
-
   const [toggle, setToggle] = useState(false);
-console.log("TOGGLE:", toggle);
-
+  console.log('TOGGLE:', toggle);
 
   return (
-    <SafeAreaView edges={['left', 'right', 'top']} style={{ flex: 1 }}>
-      
-          <IconRegistry icons={EvaIconsPack} />
+    <SafeAreaView edges={['left', 'right']} style={{ flex: 1 }}>
+      <IconRegistry icons={EvaIconsPack} />
 
-      
       <ApplicationProvider {...eva} theme={toggle ? eva.dark : eva.light}>
-        
         {/* Tüm ekranı kapsayan Layout */}
         <Layout style={{ flex: 1 }}>
-          
           {/* ABSOLUTE BUTTON CONTAINER */}
           <Layout style={styles.floatingButtonContainer} level="1">
-            <Button appearance="filled" status="info" onPress={() => setToggle(!toggle)} >
-              <Text>{toggle ? "light" : "dark"}</Text>
+            <Button appearance="filled" status="info" onPress={() => setToggle(!toggle)}>
+              <Text>{toggle ? 'light' : 'dark'}</Text>
             </Button>
           </Layout>
-          
+
           {/* TABS */}
-          <NativeTabs>
-            <NativeTabs.Trigger name="index" >
+          <NativeTabs backgroundColor="black">
+            <NativeTabs.Trigger name="map">
               <Label>Map</Label>
               <Icon sf="map" />
             </NativeTabs.Trigger>
@@ -41,7 +34,6 @@ console.log("TOGGLE:", toggle);
             <NativeTabs.Trigger name="history">
               <Icon sf="clock.arrow.circlepath" />
               <Label>History</Label>
-              
             </NativeTabs.Trigger>
 
             <NativeTabs.Trigger name="profile">
@@ -49,7 +41,6 @@ console.log("TOGGLE:", toggle);
               <Label>Profile</Label>
             </NativeTabs.Trigger>
           </NativeTabs>
-          
         </Layout>
       </ApplicationProvider>
     </SafeAreaView>
@@ -60,7 +51,7 @@ const styles = StyleSheet.create({
   floatingButtonContainer: {
     position: 'absolute',
     top: 50,
-    right: 20,
+    left: 20,
     zIndex: 999,
-  }
+  },
 });
