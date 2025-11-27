@@ -18,6 +18,8 @@ export default function Register() {
     transform: [{ scale: buttonScale.value }]
   }));
 
+
+  
   const onPressRegister = () => {
     buttonScale.value = withSpring(0.999, { damping: 2 }, () => {
       buttonScale.value = withSpring(1);
