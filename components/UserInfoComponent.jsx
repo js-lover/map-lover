@@ -1,25 +1,22 @@
-import { StyleSheet, View } from 'react-native';
-import { Card, Text } from '@ui-kitten/components';
+import { StyleSheet, View ,Text} from 'react-native';
 import { AvatarComponent } from './';
 
 const UserInfoComponent = () => {
   return (
-    <Card style={styles.card1}>
-      <View style={styles.card1Container}>
+    <View style={styles.card1}>
         <AvatarComponent />
         <View>
-          <Text category="h5" style={{}}>
+          <Text style={{fontWeight:900, fontSize:20}}>
             Kullanıcı Adı
           </Text>
-          <Text category="s2" style={{ fontWeight: 'light', color: 'gray' }}>
+          <Text style={{ fontWeight: 300, color: '#0E7AFE' }}>
             Member since 2022
           </Text>
-          <Text category="s2" style={{ fontWeight: 'light', color: 'gray' }}>
+          <Text  style={{ fontWeight: 300, color: '#0E7AFE' }}>
             Manisa
           </Text>
-        </View>
       </View>
-    </Card>
+    </View>
   );
 };
 
@@ -30,18 +27,11 @@ const styles = StyleSheet.create({
     width: '90%',
     height: 140,
     display: 'flex',
+    flexDirection:"row",
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 20,
-    background: ' #f12711' /* fallback for old browsers */,
-  },
-  card1Container: {
-    flex: 1,
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    gap: '12',
-    alignItems: 'center',
+    gap:20,
+    backgroundColor:"#fbfbfb"
   },
 });

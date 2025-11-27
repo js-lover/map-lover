@@ -1,15 +1,17 @@
 import { StyleSheet} from 'react-native'
 import React from 'react'
-import { Avatar, Layout } from '@ui-kitten/components';
+import { Image } from 'expo-image';
 
 const AvatarComponent = () => {
   return (
 <>
 
 
-    <Avatar 
-    source={require('../assets/icon.jpg')} 
-    size="giant"
+    <Image 
+    source={require('../assets/icon.jpg')}
+    className="w-20 h-20"
+    contentFit='cover'
+    style={{width:80, height:80, borderRadius:100}} 
     />
 
 

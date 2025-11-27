@@ -1,38 +1,39 @@
-import { StyleSheet, View } from 'react-native';
-import { Card, Divider, Icon, Text } from '@ui-kitten/components';
-import { SvgUri } from 'react-native-svg';
+import { StyleSheet, TouchableOpacity, View ,Text} from 'react-native';
 import { Image } from 'expo-image';
 import { EvilIcons } from '@expo/vector-icons';
-import { Link } from 'expo-router';
 const RouteHistoryComponent = ({ routeName, date, distance, location, onPress }) => {
   return (
-    <>
-      <Card style={styles.card} onPress={onPress}>
-        <View style={styles.viewStyle}>
-          <View style={{ height: 70, width: 70, borderRadius: 20, overflow: 'hidden' }}>
+
+      <View style={styles.card} >
+
+        
+
+
+        <TouchableOpacity onPress={onPress} style={styles.viewStyle}>
+          <View style={{ height: 80, width: 80, borderRadius: 20, marginRight:10,overflow: 'hidden' , borderWidth:1}}>
             <Image style={styles.image} contentFit="cover" source="https://placehold.co/600x400" />
           </View>
 
           <View
             style={{
               display: 'flex',
-              width: '200',
+              width: '230',
               height: '100%',
               flexDirection: 'column',
-              justifyContent: 'space-around',
+              justifyContent: 'center',
               alignItems: 'flex-start',
-              gap: 2,
+              gap:8,
               overflow: 'hidden',
             }}>
-            <Text numberOfLines={1} ellipsizeMode="tail" style={{ fontSize: 14 }} category="s1">
+            <Text numberOfLines={1} ellipsizeMode="tail" style={{ fontSize: 16, fontWeight:600 }} >
               {routeName}
             </Text>
 
-            <Text style={{ fontSize: 10 }} category="c2">
+            <Text style={{ fontSize: 12 , fontWeight:200}} >
               {distance}
             </Text>
 
-            <Text style={{ fontSize: 10 }} category="c1">
+            <Text style={{ fontSize: 12, fontWeight:200 }}>
               {date} / {location}
             </Text>
           </View>
@@ -43,12 +44,15 @@ const RouteHistoryComponent = ({ routeName, date, distance, location, onPress })
               height: '100%',
               justifyContent: 'center',
               alignItems: 'center',
+              
+              
+              
             }}>
             <EvilIcons name="chevron-right" size={32} color="#0E7AFE" />
           </View>
-        </View>
-      </Card>
-    </>
+        </TouchableOpacity>
+      </View>
+
   );
 };
 
@@ -58,9 +62,12 @@ const styles = StyleSheet.create({
   card: {
     justifyContent: 'center',
     alignItems: 'center',
-    width: '100%',
+    minWidth: '98%',
     height: 120,
     borderRadius: 20,
+    borderWidth:0.5,
+    borderColor:"#0E7AFE",
+    paddingHorizontal:8
   },
   viewStyle: {
     height: '100%',
@@ -68,14 +75,15 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
-    gap: 20,
+    justifyContent: 'flex-start',
+    
+    
   },
 
   image: {
     display: 'flex',
     flex: 1,
-    width: '100%',
-    backgroundColor: '#0553',
+    
+    
   },
 });
