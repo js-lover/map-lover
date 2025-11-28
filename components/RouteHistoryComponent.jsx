@@ -29,11 +29,11 @@ const RouteHistoryComponent = ({ routeName, date, distance, location, onPress })
               {routeName}
             </Text>
 
-            <Text style={{ fontSize: 12 , fontWeight:200}} >
+            <Text style={{ fontSize: 12 , fontWeight:400,color:"#0E7AFE"}} >
               {distance}
             </Text>
 
-            <Text style={{ fontSize: 12, fontWeight:200 }}>
+            <Text style={{ fontSize: 12, fontWeight:300 ,color:"#0E7AFE"}}>
               {date} / {location}
             </Text>
           </View>
@@ -62,12 +62,11 @@ const styles = StyleSheet.create({
   card: {
     justifyContent: 'center',
     alignItems: 'center',
-    minWidth: '98%',
+    minWidth: '95%',
     height: 120,
     borderRadius: 20,
-    borderWidth:0.5,
-    borderColor:"#0E7AFE",
-    paddingHorizontal:8
+    paddingHorizontal:8,
+    backgroundColor:"#fbfbfb"
   },
   viewStyle: {
     height: '100%',
