@@ -1,14 +1,13 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import React from 'react';
-import { Text } from '@ui-kitten/components';
 
 const StatsComponent = ({ title, value }) => {
   return (
-    <View style={{ borderRadius: 10, width: '100%', padding: 10 }}>
-      <Text category="s1">{title}</Text>
-      <Text category="s2" style={{ fontWeight: 'light' }}>
+    <View style={{ borderRadius: 10, width: '100%', gap: 4, marginBottom: 20 }}>
+      <Text category="s2" style={{ fontWeight: 600, fontSize: 18 }}>
         {value}
       </Text>
+      <Text style={{ fontWeight: 300, color: '#0E7AFE' }}>{title}</Text>
     </View>
   );
 };

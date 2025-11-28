@@ -8,15 +8,10 @@ module.exports = {
   },
   plugins: [],
 
-
   styledComponents: {
     Layout: { className: true },
     Card: { className: true },
     Text: { className: true },
     Button: { className: true }, // istersen diğer componentleri de ekleyebilirsin
   },
-
-
-
-
 };

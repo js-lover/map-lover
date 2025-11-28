@@ -1,8 +1,10 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text, Pressable } from 'react-native';
 import { useState } from 'react';
-import { Button, Card, Divider, Text } from '@ui-kitten/components';
 import StatsComponent from './StatsComponent';
-import Animated, { FadeInLeft, FadeOut, FadeOutRight } from 'react-native-reanimated';
+import Animated, { FadeInLeft } from 'react-native-reanimated';
+import DividerComponent from './DividerComponent';
+import Button from './profile/Button';
+import AverageStats from './profile/AverageStats';
 
 // last - weekly - monthly
 //Distance - time - workout - calories
@@ -19,153 +21,69 @@ const UserAverageStats = () => {
           justifyContent: 'flex-start',
           width: '90%',
           paddingTop: 25,
+          gap: 10,
+          marginBottom: 10,
         }}>
         <Button
-          appearance="ghost"
+          title="Last"
           onPress={() => {
             setLast(true);
             setWeekly(false);
             setMonthly(false);
           }}
-          status={last ? 'primary' : 'basic'}
-          style={{ alignSelf: 'flex-start', fontWeight: 'light' }}>
-          Last
-        </Button>
+          buttonStyle={last && { borderColor: '#0E7AFE' }}
+          textStyle={{ ...(last && { color: '#0E7AFE' }) }}
+        />
         <Button
-          appearance="ghost"
+          title="Weekly"
           onPress={() => {
             setLast(false);
             setWeekly(true);
             setMonthly(false);
           }}
-          status={weekly ? 'primary' : 'basic'}
-          style={{ alignSelf: 'flex-start', fontWeight: 'light' }}>
-          Weekly
-        </Button>
+          buttonStyle={weekly && { borderColor: '#0E7AFE' }}
+          textStyle={{ ...(weekly && { color: '#0E7AFE' }) }}
+        />
         <Button
-          appearance="ghost"
+          title="Monthly"
           onPress={() => {
             setLast(false);
             setWeekly(false);
             setMonthly(true);
           }}
-          status={monthly ? 'primary' : 'basic'}
-          style={{ alignSelf: 'flex-start', fontWeight: 'light' }}>
-          Monthly
-        </Button>
+          buttonStyle={monthly && { borderColor: '#0E7AFE' }}
+          textStyle={{ ...(monthly && { color: '#0E7AFE' }) }}
+        />
       </View>
 
       {last && (
-        <Animated.View
-          style={{
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <Card style={[styles.last]}>
-            <Text category="h6" style={{ textAlign: 'left', marginBottom: 10, fontWeight: 'bold' }}>
-              Last Stats
-            </Text>
-            <Animated.View entering={FadeInLeft.duration(300)}>
-              <StatsComponent title={'Distance'} value={'129 km'} />
-            </Animated.View>
-
-            <Divider style={styles.divider} />
-
-            <Animated.View entering={FadeInLeft.duration(600)}>
-              <StatsComponent title={'Time'} value={'40 hours'} />
-            </Animated.View>
-
-            <Divider style={styles.divider} />
-
-            <Animated.View entering={FadeInLeft.duration(900)}>
-              <StatsComponent title={'Workouts'} value={'21'} />
-            </Animated.View>
-
-            <Divider style={styles.divider} />
-
-            <Animated.View entering={FadeInLeft.duration(1200)}>
-              <StatsComponent title={'Calories Burned'} value={'14.000'} />
-            </Animated.View>
-          </Card>
-        </Animated.View>
+        <AverageStats
+          title="Last Stats"
+          calories={690}
+          workouts={4}
+          distance={29 + ' km'}
+          time={7 + ' hours'}
+        />
       )}
 
       {weekly && (
-        <Animated.View
-          style={{
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <Card style={[styles.weekly, { display: weekly ? 'flex' : 'none' }]}>
-            <Text category="h6" style={{ textAlign: 'left', marginBottom: 10, fontWeight: 'bold' }}>
-              Average Weekly Stats
-            </Text>
-
-            <Animated.View entering={FadeInLeft.duration(300)}>
-              <StatsComponent title={'Distance'} value={'129 km'} />
-            </Animated.View>
-
-            <Divider style={styles.divider} />
-
-            <Animated.View entering={FadeInLeft.duration(600)}>
-              <StatsComponent title={'Time'} value={'40 hours'} />
-            </Animated.View>
-
-            <Divider style={styles.divider} />
-
-            <Animated.View entering={FadeInLeft.duration(900)}>
-              <StatsComponent title={'Workouts'} value={'21'} />
-            </Animated.View>
-
-            <Divider style={styles.divider} />
-
-            <Animated.View entering={FadeInLeft.duration(1200)}>
-              <StatsComponent title={'Calories Burned'} value={'14.000'} />
-            </Animated.View>
-          </Card>
-        </Animated.View>
+        <AverageStats
+          title="Weekly Average Stats"
+          calories={690}
+          workouts={4}
+          distance={29 + ' km'}
+          time={7 + ' hours'}
+        />
       )}
 
       {monthly && (
-        <Animated.View
-          style={{
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <Card style={[styles.monthly, { display: monthly ? 'flex' : 'none' }]}>
-            <Text category="h6" style={{ textAlign: 'left', marginBottom: 10, fontWeight: 'bold' }}>
-              Average Monthly Stats
-            </Text>
-
-            <Animated.View entering={FadeInLeft.duration(300)}>
-              <StatsComponent title={'Distance'} value={'129 km'} />
-            </Animated.View>
-
-            <Divider style={styles.divider} />
-
-            <Animated.View entering={FadeInLeft.duration(600)}>
-              <StatsComponent title={'Time'} value={'40 hours'} />
-            </Animated.View>
-
-            <Divider style={styles.divider} />
-
-            <Animated.View entering={FadeInLeft.duration(900)}>
-              <StatsComponent title={'Workouts'} value={'21'} />
-            </Animated.View>
-
-            <Divider style={styles.divider} />
-
-            <Animated.View entering={FadeInLeft.duration(1200)}>
-              <StatsComponent title={'Calories Burned'} value={'14.000'} />
-            </Animated.View>
-          </Card>
-        </Animated.View>
+        <AverageStats
+          title="Monthly Average Stats"
+          calories={690}
+          workouts={4}
+          distance={29 + ' km'}
+          time={7 + ' hours'}
+        />
       )}
     </>
   );
@@ -174,20 +92,19 @@ const UserAverageStats = () => {
 export default UserAverageStats;
 
 const styles = StyleSheet.create({
-  last: {
-    width: '90%',
-    borderRadius: 20,
-  },
-  weekly: {
-    width: '90%',
-    borderRadius: 20,
-  },
-  monthly: {
-    width: '90%',
-    borderRadius: 20,
-  },
-
   divider: {
     marginVertical: 8,
+  },
+
+  statsContainer: {
+    width: '90%',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    borderRadius: 20,
+    borderWidth: 0.4,
+    borderColor: '#0E7AFE',
+    padding: 20,
+    backgroundColor: '#fbfbfb',
   },
 });
