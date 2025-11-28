@@ -107,7 +107,7 @@ export default function Detail() {
                 }}
                 numberOfLines={2}
                 ellipsizeMode="tail"
-                style={{ fontSize: 20, paddingBottom: 10, fontWeight: 900 , color:"#3C3C44"}}>
+                style={{ fontSize: 20, paddingBottom: 10, fontWeight: 900, color: '#3C3C44' }}>
                 {name}
               </Text>
             </View>
@@ -125,23 +125,23 @@ export default function Detail() {
                 paddingTop: 20,
               }}>
               <View style={{ justifyContent: 'flex-start' }}>
-                <Text style={{ fontWeight: 900, fontSize: 24 , color:"#3C3C44"}}>{distance}</Text>
+                <Text style={{ fontWeight: 900, fontSize: 24, color: '#3C3C44' }}>{distance}</Text>
                 <Text style={{ color: '#0E7AFE', fontWeight: 400 }}>Distance</Text>
               </View>
               <View style={{ justifyContent: 'flex-start' }}>
-                <Text style={{ fontWeight: 900, fontSize: 24 , color:"#3C3C44"}}>{steps}</Text>
+                <Text style={{ fontWeight: 900, fontSize: 24, color: '#3C3C44' }}>{steps}</Text>
                 <Text style={{ color: '#0E7AFE', fontWeight: 400 }}>Steps</Text>
               </View>
               <View style={{ justifyContent: 'flex-start' }}>
-                <Text style={{ fontWeight: 900, fontSize: 24, color:"#3C3C44" }}>{calories}</Text>
+                <Text style={{ fontWeight: 900, fontSize: 24, color: '#3C3C44' }}>{calories}</Text>
                 <Text style={{ color: '#0E7AFE', fontWeight: 400 }}>Calories</Text>
               </View>
               <View style={{ justifyContent: 'flex-start' }}>
-                <Text style={{ fontWeight: 900, fontSize: 16, color:"#3C3C44" }}>{location}</Text>
+                <Text style={{ fontWeight: 900, fontSize: 16, color: '#3C3C44' }}>{location}</Text>
                 <Text style={{ color: '#0E7AFE', fontWeight: 400 }}>Location</Text>
               </View>
               <View style={{ justifyContent: 'flex-start' }}>
-                <Text style={{ fontWeight: 900, fontSize: 16 , color:"#3C3C44"}}>{date}</Text>
+                <Text style={{ fontWeight: 900, fontSize: 16, color: '#3C3C44' }}>{date}</Text>
                 <Text style={{ color: '#0E7AFE', fontWeight: 400 }}>Date</Text>
               </View>
             </View>

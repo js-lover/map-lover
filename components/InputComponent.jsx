@@ -1,16 +1,14 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
 
 const InputComponent = () => {
   return (
     <View>
-        <Text>
-            lşadfkşadlkfa
-        </Text>
+      <Text>lşadfkşadlkfa</Text>
     </View>
-  )
-}
+  );
+};
 
-export default InputComponent
+export default InputComponent;
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({});

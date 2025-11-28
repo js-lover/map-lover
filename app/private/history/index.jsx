@@ -11,19 +11,17 @@ const history = () => {
 
   const handleSearch = (text) => {
     const lowerText = text.toLowerCase();
-    const filtered = routesData.filter(route =>
-      route.name.toLowerCase().includes(lowerText)
-    );
+    const filtered = routesData.filter((route) => route.name.toLowerCase().includes(lowerText));
     setFilteredRoutes(filtered);
   };
 
   return (
-    <SafeAreaView edges={["bottom"]} style={styles.viewContainer}>
-      <View style={{display:"flex", width:"100%", marginBottom:20}}>
+    <SafeAreaView edges={['bottom']} style={styles.viewContainer}>
+      <View style={{ display: 'flex', width: '100%', marginBottom: 20 }}>
         <SearchBar onChangeText={handleSearch} />
       </View>
 
-      <View style={{display:"flex", width:"100%" , height:"100%"}}>
+      <View style={{ display: 'flex', width: '100%', height: '100%' }}>
         <FlatList
           data={filteredRoutes}
           keyExtractor={(item) => item.id.toString()}
@@ -36,16 +34,16 @@ const history = () => {
                 location={item.location}
                 onPress={() => {
                   router.navigate({
-                    pathname:'private/history/[routeId]',
+                    pathname: 'private/history/[routeId]',
                     params: {
-                      routeId: item.id , 
+                      routeId: item.id,
                       name: item.name,
                       distance: item.distance,
                       location: item.location,
-                      date : item.date,
+                      date: item.date,
                       steps: item.steps,
-                      calories: item.calories
-                    }
+                      calories: item.calories,
+                    },
                   });
                 }}
               />
@@ -66,7 +64,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop:48
+    paddingTop: 48,
   },
   innerContainer: {
     marginBottom: 8,

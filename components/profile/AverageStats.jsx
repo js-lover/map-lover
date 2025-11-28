@@ -3,7 +3,7 @@ import React from 'react';
 import Animated, { FadeInLeft } from 'react-native-reanimated';
 import { DividerComponent, StatsComponent } from '..';
 
-const WeeklyStats = ({title, calories, time, distance, workouts}) => {
+const WeeklyStats = ({ title, calories, time, distance, workouts }) => {
   return (
     <Animated.View style={styles.statsContainer}>
       <Text style={{ textAlign: 'left', fontWeight: 800, fontSize: 20 }}>{title}</Text>

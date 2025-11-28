@@ -62,7 +62,6 @@ const index = () => {
             position: 'absolute',
             bottom: 170,
           }}>
-         
           <Button
             title="Login"
             buttonStyle={styles.loginButtonStyle}
@@ -75,11 +74,6 @@ const index = () => {
             textStyle={styles.registerTextStyle}
             onPress={() => router.navigate('public/register')}
           />
-         
-
-
-
-
         </View>
       </ImageBackground>
     </SafeAreaView>
@@ -102,30 +96,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  loginButtonStyle:{
-    borderRadius:8,
-    width:250,
-    height:50,
-    borderColor:"#0E7AFE",
-    backgroundColor:"#0E7AFE"
-    
+  loginButtonStyle: {
+    borderRadius: 8,
+    width: 250,
+    height: 50,
+    borderColor: '#0E7AFE',
+    backgroundColor: '#0E7AFE',
   },
-  loginTextStyle:{
-    color:"#fbfbfb",
-    fontSize:16,
-    fontWeight:600
+  loginTextStyle: {
+    color: '#fbfbfb',
+    fontSize: 16,
+    fontWeight: 600,
   },
 
-  registerButtonStyle:{
-    borderRadius:8,
-    width:250,
-    height:50,
-    borderColor:"#34C759",
-    
+  registerButtonStyle: {
+    borderRadius: 8,
+    width: 250,
+    height: 50,
+    borderColor: '#34C759',
   },
-  registerTextStyle:{
-    color:"#34C759",
-    fontSize:16,
-    fontWeight:600
-  }
+  registerTextStyle: {
+    color: '#34C759',
+    fontSize: 16,
+    fontWeight: 600,
+  },
 });
