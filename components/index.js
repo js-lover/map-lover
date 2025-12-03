@@ -10,3 +10,5 @@ export { default as ButtonComponent } from './ButtonComponent';
 export { default as Button } from './profile/Button';
 export { default as WeeklyStats } from './profile/AverageStats';
 export { default as SearchBar } from './history/SearchBar';
+export { default as Card } from './map/Card';
+export { default as RunningStats } from './map/RunningStats';

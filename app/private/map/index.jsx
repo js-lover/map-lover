@@ -3,9 +3,10 @@ import {
   AppleMapsMapStyleElevation,
   AppleMapsMapType,
 } from 'expo-maps/build/apple/AppleMaps.types';
-import { Alert, Platform, Text } from 'react-native';
+import { Alert, Platform, Text, View } from 'react-native';
 import useLocation from '../../hooks/useLocation';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Card } from '../../../components';
 
 export default function Home() {
   const { longitude, latitude, errorMsg } = useLocation();
@@ -69,6 +70,10 @@ export default function Home() {
             },
           ]}
         />
+
+        <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+          <Card />
+        </View>
       </SafeAreaView>
     );
   } else if (Platform.OS === 'android') {
