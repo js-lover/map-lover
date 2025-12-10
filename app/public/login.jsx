@@ -11,7 +11,6 @@ import Animated, {
 import { Button } from '../../components';
 import { EvilIcons } from '@expo/vector-icons';
 
-import { login } from '../auth';
 import { router } from 'expo-router';
 
 export default function Login() {
@@ -25,8 +24,7 @@ export default function Login() {
   }));
 
   function handleLogin() {
-    login();
-    router.replace('/private'); // otomatik private'e gider
+    console.log('login tıklandı');
   }
 
   return (
@@ -75,7 +73,7 @@ export default function Login() {
           <Button
             buttonStyle={styles.button}
             textStyle={styles.textStyle}
-            onPress={handleLogin}
+            onPress={handleLogin()}
             title="Login"
           />
         </Animated.View>

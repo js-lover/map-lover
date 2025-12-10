@@ -1,31 +1,11 @@
-/* import { Stack } from 'expo-router';
-
-export default function HistoryLayout() {
-  return (
-    <Stack>
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="login" options={{ headerShown: false }} />
-      <Stack.Screen name="register" options={{ headerShown: false }} />
-    </Stack>
-  );
-}
- */
-
-import { Stack, Redirect } from 'expo-router';
-import { getAuth } from '../auth';
+import React from 'react';
+import { Slot, Redirect } from 'expo-router';
+import { useAuthContext } from '../hooks/useAuthContext';
 
 export default function PublicLayout() {
-  const logged = getAuth();
+  const { isLoading, isLoggedIn } = useAuthContext();
 
-  if (logged) {
-    return <Redirect href="/private" />;
-  }
-
-  return (
-    <Stack>
-      <Stack.Screen name="login" options={{ headerShown: false }} />
-      <Stack.Screen name="register" options={{ headerShown: false }} />
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-    </Stack>
-  );
+  if (isLoading) return null;
+  if (isLoggedIn) return <Redirect href="/private" />;
+  return <Slot />;
 }
