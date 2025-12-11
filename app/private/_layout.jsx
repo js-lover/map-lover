@@ -1,14 +1,13 @@
-import { Stack, Redirect } from 'expo-router';
-import { getAuth } from '../auth';
-
-import { NativeTabs, Icon, Label, Badge } from 'expo-router/unstable-native-tabs';
+import React from 'react';
+import { Redirect } from 'expo-router';
+import { NativeTabs, Icon, Label } from 'expo-router/unstable-native-tabs';
+import { useAuthContext } from '../hooks/useAuthContext';
 
 export default function PrivateLayout() {
-  const logged = getAuth();
+  const { isLoading, isLoggedIn } = useAuthContext();
 
-  if (!logged) {
-    return <Redirect href="/public/login" />;
-  }
+  if (isLoading) return null; // veya Loading bileşeni render et
+  if (!isLoggedIn) return <Redirect href="/public" />;
 
   return (
     <NativeTabs backgroundColor="black">

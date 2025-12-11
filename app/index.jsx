@@ -1,12 +1,10 @@
+import React from 'react';
 import { Redirect } from 'expo-router';
-import { getAuth } from '../app/auth'; // senin auth boolean kontrolün
+import { useAuthContext } from './hooks/useAuthContext';
 
-export default function RootIndex() {
-  const logged = getAuth();
+export default function RootRedirect() {
+  const { isLoading, isLoggedIn } = useAuthContext();
 
-  if (logged) {
-    return <Redirect href="/private" />;
-  } else {
-    return <Redirect href="/public" />;
-  }
+  if (isLoading) return null; // veya loading UI
+  return <Redirect href={isLoggedIn ? '/private' : '/public'} />;
 }
