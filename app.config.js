@@ -7,6 +7,7 @@ export default {
     version: '1.0.0',
     scheme: 'menza',
     platforms: ['ios', 'android'],
+
     web: {
       bundler: 'metro',
       output: 'static',
@@ -15,6 +16,7 @@ export default {
 
     plugins: [
       'expo-router',
+
       [
         'expo-maps',
         {
@@ -22,14 +24,19 @@ export default {
           locationPermission: 'Allow $(PRODUCT_NAME) to use your location',
         },
       ],
+
       [
         'expo-location',
         {
           locationAlwaysAndWhenInUsePermission: 'Allow $(PRODUCT_NAME) to use your location.',
         },
       ],
+
       'expo-sqlite',
       'expo-secure-store',
+
+      // Apple Authentication plugini — eklemek iyi bir pratik.
+      'expo-apple-authentication',
     ],
 
     experiments: {
@@ -52,6 +59,15 @@ export default {
     ios: {
       supportsTablet: true,
       bundleIdentifier: 'com.serhatbarisaydin.menza',
+
+      // Apple Sign-In için zorunlu ayar
+      usesAppleSignIn: true,
+
+      // AppleAuthentication için minimum iOS gereksinimi
+      deploymentTarget: '13.0',
+      infoPlist: {
+        ITSAppUsesNonExemptEncryption: false,
+      },
     },
 
     android: {
@@ -59,15 +75,18 @@ export default {
         foregroundImage: './assets/adaptive-icon.png',
         backgroundColor: '#ffffff',
       },
+
       config: {
         googleMaps: {
           apiKey: 'AIzaSyDiJ-rfHCQav-sKweCo9Fz_M-YE9Olgnd8',
         },
       },
+
       permissions: [
         'android.permission.ACCESS_COARSE_LOCATION',
         'android.permission.ACCESS_FINE_LOCATION',
       ],
+
       package: 'com.serhatbarisaydin.menza',
     },
 

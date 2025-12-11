@@ -9,22 +9,20 @@ const SUPABASE_URL = Constants.expoConfig?.extra?.supabaseUrl;
 const SUPABASE_ANON_KEY = Constants.expoConfig?.extra?.supabaseAnonKey;
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.error("❌ Supabase env variables missing!", {
+  console.error('❌ Supabase env variables missing!', {
     SUPABASE_URL,
-    SUPABASE_ANON_KEY
+    SUPABASE_ANON_KEY,
   });
 }
 
 const ExpoSecureStoreAdapter = {
   getItem: (key: string) => {
-    console.debug("getItem", { key });
+    console.debug('getItem', { key });
     return getItemAsync(key);
   },
   setItem: (key: string, value: string) => {
     if (value.length > 2048) {
-      console.warn(
-        'Value stored in SecureStore exceeds 2048 bytes — may fail on some devices.'
-      );
+      console.warn('Value stored in SecureStore exceeds 2048 bytes — may fail on some devices.');
     }
     return setItemAsync(key, value);
   },
@@ -33,15 +31,11 @@ const ExpoSecureStoreAdapter = {
   },
 };
 
-export const supabase = createClient(
-  SUPABASE_URL!,
-  SUPABASE_ANON_KEY!,
-  {
-    auth: {
-      storage: ExpoSecureStoreAdapter as any,
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: false,
-    },
-  }
-);
+export const supabase = createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
+  auth: {
+    storage: ExpoSecureStoreAdapter as any,
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: false,
+  },
+});

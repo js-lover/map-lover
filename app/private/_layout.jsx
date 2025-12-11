@@ -7,7 +7,7 @@ export default function PrivateLayout() {
   const { isLoading, isLoggedIn } = useAuthContext();
 
   if (isLoading) return null; // veya Loading bileşeni render et
-  if (!isLoggedIn) return <Redirect href="/public/login" />;
+  if (!isLoggedIn) return <Redirect href="/public" />;
 
   return (
     <NativeTabs backgroundColor="black">

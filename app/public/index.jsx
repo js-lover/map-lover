@@ -1,123 +1,186 @@
-import { StyleSheet, View, Text, Pressable } from 'react-native';
-import React from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Image, ImageBackground } from 'expo-image';
+import React, { useEffect, useState } from 'react';
+import { View, TextInput, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import Animated, {
+  FadeInUp,
+  FadeIn,
+  useSharedValue,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
+import { Button, LoadingComponent } from '../../components';
 import { Link, useRouter } from 'expo-router';
-import { Button } from '../../components';
-import { buttonStyle } from '@expo/ui/swift-ui/modifiers';
+import { signInUser } from '@/services/auth.services';
 
-const index = () => {
+export default function Login() {
+  const [focused, setFocused] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  async function handleSignIn() {
+    setLoading(true);
+    try {
+      await signInUser(email, password);
+    } catch (error) {
+      alert('missing email or phone');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const buttonScale = useSharedValue(1);
+
+  // Buton animasyonu
+  const animatedButton = useAnimatedStyle(() => ({
+    transform: [{ scale: buttonScale.value }],
+  }));
+
   const router = useRouter();
 
   return (
-    <SafeAreaView style={styles.container} edges={[]}>
-      <ImageBackground
-        style={styles.image}
-        source={require('../../assets/images/runner3.jpg')}
-        contentFit="cover"
-        transition={500}
-        contentPosition={'bottom center'}
-        blurRadius={0}>
-        <View
-          style={{
-            width: '100%',
-            justifyContent: 'flex-start',
-            alignItems: 'flex-start',
-            position: 'absolute',
-            left: 0,
-            top: 120,
-          }}>
-          <Text
-            className=""
-            style={{
-              color: '#fbfbfb',
-              fontSize: 50,
-              fontWeight: '900',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'flex-start',
-            }}>
-            {' '}
-            THE DASH{' '}
-          </Text>
-          <Text
-            style={{
-              color: '#fbfbfb',
-              fontSize: 50,
-              fontWeight: '900',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'flex-start',
-            }}>
-            {' '}
-            COLLECTIVE{' '}
-          </Text>
+    <View style={styles.container}>
+      {/* Fade arka plan */}
+
+      <LoadingComponent visible={loading} backgroundColor="rgba(0,0,0,0.5)" />
+
+      <Animated.View entering={FadeIn.duration(600)} style={styles.backgroundCircle} />
+
+      {/* Login kartı */}
+      <Animated.View entering={FadeInUp.duration(600)} style={styles.card}>
+        <Text style={styles.title}>Welcome</Text>
+        <Text style={styles.subtitle}>Please login to continue</Text>
+
+        {/* EMAIL */}
+        <View style={styles.inputContainer}>
+          <Animated.Text
+            style={[styles.label, focused === 'email' && { color: '#007AFF' }]}
+            entering={FadeInUp.delay(100)}>
+            Email
+          </Animated.Text>
+
+          <TextInput
+            style={styles.input}
+            onFocus={() => setFocused('email')}
+            onBlur={() => setFocused('')}
+            onChangeText={(value) => setEmail(value)}
+          />
         </View>
 
-        <View
-          style={{
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: 10,
-            position: 'absolute',
-            bottom: 170,
-          }}>
+        {/* PASSWORD */}
+        <View style={styles.inputContainer}>
+          <Animated.Text
+            style={[styles.label, focused === 'password' && { color: '#007AFF' }]}
+            entering={FadeInUp.delay(200)}>
+            Şifre
+          </Animated.Text>
+
+          <TextInput
+            secureTextEntry
+            style={styles.input}
+            onFocus={() => setFocused('password')}
+            onBlur={() => setFocused('')}
+            onChangeText={(value) => setPassword(value)}
+          />
+        </View>
+
+        {/* Login Button */}
+        <Animated.View style={[styles.buttonWrapper, animatedButton]}>
           <Button
+            buttonStyle={styles.button}
+            textStyle={styles.textStyle}
+            onPress={handleSignIn}
             title="Login"
-            buttonStyle={styles.loginButtonStyle}
-            textStyle={styles.loginTextStyle}
-            onPress={() => router.navigate('public/login')}
           />
-          <Button
-            title="Register"
-            buttonStyle={styles.registerButtonStyle}
-            textStyle={styles.registerTextStyle}
-            onPress={() => router.navigate('public/register')}
-          />
-        </View>
-      </ImageBackground>
-    </SafeAreaView>
+          <View
+            style={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              flexDirection: 'row',
+              gap: 5,
+              paddingTop: 20,
+            }}>
+            <Text style={{ color: '#fbfbfb', fontWeight: 200 }}>Don't you have an account?</Text>
+            <Link href="/public/register">
+              <Text style={{ color: '#34C759', fontWeight: 700 }}>Register</Text>
+            </Link>
+          </View>
+        </Animated.View>
+      </Animated.View>
+    </View>
   );
-};
-
-export default index;
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  image: {
-    flex: 1,
-    width: '100%',
-    backgroundColor: '#0553',
+    backgroundColor: '#0D0D0D',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  loginButtonStyle: {
+
+  backgroundCircle: {
+    position: 'absolute',
+    width: 350,
+    height: 350,
+    borderRadius: 200,
+    backgroundColor: 'rgba(0,122,255,0.18)',
+    top: -70,
+    right: -120,
+  },
+
+  card: {
+    width: '85%',
+    padding: 24,
+    borderRadius: 20,
+    backgroundColor: '#1A1A1A',
+    shadowColor: '#000',
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+  },
+
+  title: {
+    fontSize: 32,
+    fontWeight: 900,
+    color: 'white',
+    marginBottom: 4,
+  },
+
+  subtitle: {
+    fontSize: 14,
+    color: '#999',
+    marginBottom: 24,
+  },
+
+  inputContainer: {
+    marginBottom: 20,
+  },
+
+  label: {
+    color: '#ccc',
+    marginBottom: 8,
+  },
+
+  input: {
+    backgroundColor: '#2A2A2A',
     borderRadius: 8,
-    width: 250,
+    height: 48,
+    paddingHorizontal: 12,
+    color: 'white',
+  },
+
+  buttonWrapper: {
+    marginTop: 10,
+  },
+
+  button: {
+    borderRadius: 8,
     height: 50,
     borderColor: '#0E7AFE',
     backgroundColor: '#0E7AFE',
   },
-  loginTextStyle: {
+  textStyle: {
     color: '#fbfbfb',
     fontSize: 16,
     fontWeight: 600,
   },
-
-  registerButtonStyle: {
-    borderRadius: 8,
-    width: 250,
-    height: 50,
-    borderColor: '#34C759',
-  },
-  registerTextStyle: {
-    color: '#34C759',
-    fontSize: 16,
-    fontWeight: 600,
-  },
+  arrow: {},
 });

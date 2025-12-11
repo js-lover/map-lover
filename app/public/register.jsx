@@ -7,11 +7,21 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
-import { Button } from '../../components';
+import { Button, LoadingComponent } from '../../components';
+
+import { registerNewUser } from '../../services/auth.services';
+import { supabase } from '@/lib/supabase';
+import { Link, router } from 'expo-router';
 
 export default function Register() {
   const [focused, setFocused] = useState('');
 
+  //userDatas
+  const [fullName, setFullName] = useState();
+  const [userName, setUserName] = useState();
+  const [email, setEmail] = useState();
+  const [password, setPassword] = useState();
+  const [loading, setLoading] = useState(false);
   const buttonScale = useSharedValue(1);
 
   const animatedButton = useAnimatedStyle(() => ({
@@ -24,14 +34,85 @@ export default function Register() {
     });
   };
 
+  async function handleRegister() {
+    setLoading(true);
+
+    try {
+      /** 1) Signup */
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          emailRedirectTo: 'menza://auth/callback',
+        },
+      });
+
+      if (signUpError) throw signUpError;
+      const createdUser = signUpData.user;
+      if (!createdUser) throw new Error('Kullanıcı oluşturulamadı.');
+
+      /** 2) Signup sonrası hemen login yap */
+      const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (loginError) throw loginError;
+
+      const user = loginData.user;
+      if (!user) throw new Error('Kullanıcı giriş yapamadı.');
+
+      /** 3) Profil güncelle */
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          full_name: fullName,
+          username: userName,
+        })
+        .eq('id', user.id);
+
+      if (profileError) throw profileError;
+
+      /** 4) PROFESYONEL: Kullanıcıyı çıkış yap */
+      await supabase.auth.signOut();
+
+      /** 5) Login sayfasına yönlendir */
+      router.replace('/public');
+
+      alert('Kayıt başarılı! Şimdi giriş yapabilirsiniz.');
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
   return (
     <View style={styles.container}>
       {/* Background Fade */}
+
+      <LoadingComponent visible={loading} backgroundColor="rgba(0,0,0,1)" />
+
       <Animated.View entering={FadeIn.duration(600)} style={styles.backgroundCircle} />
 
       <Animated.View entering={FadeInUp.duration(600)} style={styles.card}>
         <Text style={styles.title}>Register</Text>
         <Text style={styles.subtitle}>Create an account</Text>
+
+        {/* Name */}
+        <View style={styles.inputContainer}>
+          <Animated.Text
+            style={[styles.label, focused === 'fullname' && { color: '#34C759' }]}
+            entering={FadeInUp.delay(100)}>
+            Full Name
+          </Animated.Text>
+
+          <TextInput
+            style={styles.input}
+            onFocus={() => setFocused('fullname')}
+            onBlur={() => setFocused('')}
+            onChangeText={(value) => setFullName(value)}
+          />
+        </View>
 
         {/* USERNAME */}
         <View style={styles.inputContainer}>
@@ -45,6 +126,7 @@ export default function Register() {
             style={styles.input}
             onFocus={() => setFocused('username')}
             onBlur={() => setFocused('')}
+            onChangeText={(value) => setUserName(value)}
           />
         </View>
 
@@ -61,6 +143,7 @@ export default function Register() {
             style={styles.input}
             onFocus={() => setFocused('email')}
             onBlur={() => setFocused('')}
+            onChangeText={(value) => setEmail(value)}
           />
         </View>
 
@@ -77,6 +160,7 @@ export default function Register() {
             style={styles.input}
             onFocus={() => setFocused('password')}
             onBlur={() => setFocused('')}
+            onChangeText={(value) => setPassword(value)}
           />
         </View>
 
@@ -85,9 +169,23 @@ export default function Register() {
           <Button
             buttonStyle={styles.button}
             textStyle={styles.textStyle}
-            onPress={() => console.log('register tiklandi')}
+            onPress={handleRegister}
             title="Register"
           />
+
+          <View
+            style={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              flexDirection: 'row',
+              gap: 5,
+              paddingTop: 20,
+            }}>
+            <Text style={{ color: '#fbfbfb', fontWeight: 200 }}>Already have an account?</Text>
+            <Link href="/public">
+              <Text style={{ color: '#0E7AFE', fontWeight: 700 }}>Login</Text>
+            </Link>
+          </View>
         </Animated.View>
       </Animated.View>
     </View>

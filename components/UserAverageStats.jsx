@@ -18,8 +18,9 @@ const UserAverageStats = () => {
       <View
         style={{
           flexDirection: 'row',
-          justifyContent: 'flex-start',
-          width: '90%',
+          justifyContent: 'center',
+          width: '100%',
+          height: 60,
           paddingTop: 25,
           gap: 10,
           marginBottom: 10,
@@ -31,7 +32,7 @@ const UserAverageStats = () => {
             setWeekly(false);
             setMonthly(false);
           }}
-          buttonStyle={last && { borderColor: '#0E7AFE' }}
+          buttonStyle={{ ...(last && { borderColor: '#0E7AFE' }), width: 105 }}
           textStyle={{ ...(last && { color: '#0E7AFE' }) }}
         />
         <Button
@@ -41,7 +42,7 @@ const UserAverageStats = () => {
             setWeekly(true);
             setMonthly(false);
           }}
-          buttonStyle={weekly && { borderColor: '#0E7AFE' }}
+          buttonStyle={{ ...(weekly && { borderColor: '#0E7AFE' }), width: 105 }}
           textStyle={{ ...(weekly && { color: '#0E7AFE' }) }}
         />
         <Button
@@ -51,7 +52,7 @@ const UserAverageStats = () => {
             setWeekly(false);
             setMonthly(true);
           }}
-          buttonStyle={monthly && { borderColor: '#0E7AFE' }}
+          buttonStyle={{ ...(monthly && { borderColor: '#0E7AFE' }), width: 105 }}
           textStyle={{ ...(monthly && { color: '#0E7AFE' }) }}
         />
       </View>

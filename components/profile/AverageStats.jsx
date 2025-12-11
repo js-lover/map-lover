@@ -1,12 +1,16 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
-import Animated, { FadeInLeft } from 'react-native-reanimated';
+import Animated, { FadeInLeft, FadeInUp, FadeOutDown } from 'react-native-reanimated';
 import { DividerComponent, StatsComponent } from '..';
 
 const WeeklyStats = ({ title, calories, time, distance, workouts }) => {
   return (
     <Animated.View style={styles.statsContainer}>
-      <Text style={{ textAlign: 'left', fontWeight: 800, fontSize: 20 }}>{title}</Text>
+      <Animated.Text
+        entering={FadeInUp.duration(300)}
+        style={{ textAlign: 'left', fontWeight: 800, fontSize: 20 }}>
+        {title}
+      </Animated.Text>
       <DividerComponent color="gray" height={0.4} marginVertical={12} />
 
       <Animated.View entering={FadeInLeft.duration(300)}>

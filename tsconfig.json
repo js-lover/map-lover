@@ -1,4 +1,4 @@
-{
+/* {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
@@ -8,10 +8,32 @@
         "*"
       ]
     }
+  }, */
+//  "include": [
+//    "**/*.ts",
+//  "**/*.tsx",
+//"nativewind-env.d.ts",
+//".expo/types/**/*.ts",
+// "expo-env.d.ts"
+//, "components/social-auth-buttons/apple/AppleSignInButton.jsx"  ]
+//}
+
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "allowJs": true,
+    "checkJs": false,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["*"]
+    }
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx",
     "nativewind-env.d.ts",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
