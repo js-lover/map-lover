@@ -12,6 +12,7 @@ const UserInfoComponent = ({ username, memberDate }) => {
           Member since {memberDate}
         </Text>
         <Text style={{ fontWeight: 300, fontSize: 12, color: '#0E7AFE' }}>Manisa</Text>
+
       </View>
     </View>
   );
