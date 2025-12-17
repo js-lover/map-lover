@@ -6,7 +6,7 @@ import {
 import { Alert, Platform, Text, View } from 'react-native';
 import useLocation from '../../hooks/useLocation';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Card } from '../../../components';
+
 
 export default function Home() {
   const { longitude, latitude, errorMsg } = useLocation();
@@ -72,7 +72,6 @@ export default function Home() {
         />
 
         <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
-          <Card />
         </View>
       </SafeAreaView>
     );

@@ -71,6 +71,7 @@ export default function AuthProvider({ children }: PropsWithChildren) {
         isLoading,
         profile,
         isLoggedIn: session != undefined,
+        
       }}>
       {children}
     </AuthContext.Provider>

@@ -2,10 +2,10 @@ import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { AvatarComponent } from './';
 import { useEffect } from 'react';
 
-const UserInfoComponent = ({ username, memberDate }) => {
+const UserInfoComponent = ({ username, memberDate , avatarUrl, onPress}) => {
   return (
     <View style={styles.card1}>
-      <AvatarComponent />
+      <AvatarComponent avatarUrl={avatarUrl} onPress={onPress} size={80}/>
       <View>
         <Text style={{ fontWeight: 900, fontSize: 20 }}>{username}</Text>
         <Text style={{ fontWeight: 300, fontSize: 12, color: '#0E7AFE' }}>

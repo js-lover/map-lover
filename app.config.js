@@ -37,6 +37,14 @@ export default {
 
       // Apple Authentication plugini — eklemek iyi bir pratik.
       'expo-apple-authentication',
+
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Menza wants to accesses your photos to let you change profile photo."
+        }
+      ]
+
     ],
 
     experiments: {
@@ -45,7 +53,7 @@ export default {
     },
 
     orientation: 'portrait',
-    icon: './assets/icon.png',
+    icon: './assets/splash.png',
     userInterfaceStyle: 'light',
 
     splash: {
