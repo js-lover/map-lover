@@ -20,8 +20,8 @@ const UserAverageStats = () => {
           flexDirection: 'row',
           justifyContent: 'center',
           width: '100%',
-          height: 60,
-          paddingTop: 25,
+          height: 35,
+          marginTop:25,
           gap: 10,
           marginBottom: 10,
         }}>
