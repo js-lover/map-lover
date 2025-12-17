@@ -1,11 +1,11 @@
 import * as ImagePicker from "expo-image-picker";
 import { supabase } from "../lib/supabase";
 
-export async function pickAndUploadAvatar(userId, oldAvatarPath) {
+export async function pickAndUploadAvatar(userId) {
   try {
     // 1️⃣ Fotoğraf seç
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 1,
@@ -15,20 +15,19 @@ export async function pickAndUploadAvatar(userId, oldAvatarPath) {
 
     const image = result.assets[0];
 
-    // 2️⃣ Dosyayı arrayBuffer olarak al
+    // 2️⃣ ArrayBuffer al
     const response = await fetch(image.uri);
     const arrayBuffer = await response.arrayBuffer();
 
-    // 3️⃣ Dosya adı
-    const fileExt = image.uri.split(".").pop();
-    const fileName = `${userId}-${Date.now()}.${fileExt}`;
+    // 3️⃣ SABİT dosya adı (overwrite)
+    const fileName = `${userId}.jpg`;
 
-    // 4️⃣ Storage’a YENİ avatarı yükle
+    // 4️⃣ Upload (UPsert 🔥)
     const { error: uploadError } = await supabase.storage
       .from("avatars")
       .upload(fileName, arrayBuffer, {
         contentType: image.mimeType ?? "image/jpeg",
-        upsert: true,
+        upsert: true, // 🔥 overwrite
       });
 
     if (uploadError) {
@@ -36,35 +35,23 @@ export async function pickAndUploadAvatar(userId, oldAvatarPath) {
       return null;
     }
 
-    // 5️⃣ profiles tablosunu güncelle
+    // 5️⃣ DB update (sabit path)
     const { error: updateError } = await supabase
       .from("profiles")
       .update({ avatar_url: fileName })
       .eq("id", userId);
 
     if (updateError) {
-      console.log("Database update error:", updateError);
+      console.log("DB update error:", updateError);
       return null;
     }
 
-    // 6️⃣ 🔥 ESKİ AVATAR’I SİL (EN KRİTİK KISIM)
-    if (oldAvatarPath) {
-      const { error: deleteError } = await supabase.storage
-        .from("avatars")
-        .remove([oldAvatarPath]);
-
-      if (deleteError) {
-        console.log("Old avatar delete error:", deleteError);
-        // ⚠️ burada return etmiyoruz → yeni avatar zaten aktif
-      }
-    }
-
-    // 7️⃣ Public URL döndür
-    const { data: urlData } = supabase.storage
+    // 6️⃣ Cache busting public URL
+    const { data } = supabase.storage
       .from("avatars")
       .getPublicUrl(fileName);
 
-    return urlData.publicUrl;
+    return `${data.publicUrl}?t=${Date.now()}`;
 
   } catch (error) {
     console.log("Avatar yükleme hatası:", error);
