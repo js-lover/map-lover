@@ -1,7 +1,7 @@
 import React from 'react';
 import { Redirect } from 'expo-router';
 import { NativeTabs, Icon, Label } from 'expo-router/unstable-native-tabs';
-import { useAuthContext } from '../hooks/useAuthContext';
+import { useAuthContext } from '../../hooks/useAuthContext';
 
 export default function PrivateLayout() {
   const { isLoading, isLoggedIn } = useAuthContext();

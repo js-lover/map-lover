@@ -1,6 +1,6 @@
 import React from 'react';
 import { Slot, Redirect } from 'expo-router';
-import { useAuthContext } from '../hooks/useAuthContext';
+import { useAuthContext } from '../../hooks/useAuthContext';
 
 export default function PublicLayout() {
   const { isLoading, isLoggedIn } = useAuthContext();

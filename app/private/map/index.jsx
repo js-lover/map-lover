@@ -4,8 +4,9 @@ import {
   AppleMapsMapType,
 } from 'expo-maps/build/apple/AppleMaps.types';
 import { Alert, Platform, Text, View } from 'react-native';
-import useLocation from '../../hooks/useLocation';
+import useLocation from '../../../hooks/useLocation';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Card from '@/components/map/Card';
 
 
 export default function Home() {
@@ -72,6 +73,7 @@ export default function Home() {
         />
 
         <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+          <Card/>
         </View>
       </SafeAreaView>
     );
