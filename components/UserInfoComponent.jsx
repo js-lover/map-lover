@@ -28,8 +28,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 20,
+    borderRadius: 50,
     gap: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.1)',
     backgroundColor: '#fbfbfb',
   },
 });

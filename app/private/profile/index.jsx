@@ -9,7 +9,7 @@ import {
   LoadingComponent,
 } from '../../../components';
 
-import { useAuthContext } from '../../hooks/useAuthContext';
+import { useAuthContext } from '../../../hooks/useAuthContext';
 import { signOut } from '../../../services/auth.services';
 import { pickAndUploadAvatar } from '../../../services/uploadAvatar';
 import { supabase } from '../../../lib/supabase';

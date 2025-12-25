@@ -1,143 +1,148 @@
-import { StyleSheet, Text, View } from 'react-native';
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
+import { StyleSheet, View, Dimensions, Text } from 'react-native';
 import { BlurView } from 'expo-blur';
+import { Ionicons } from '@expo/vector-icons';
+import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
+
 import RunningStats from './RunningStats';
 import { Button } from '../index';
-import Animated, { LinearTransition } from 'react-native-reanimated';
 
-const Card = () => {
-  const [isStart, setIsStart] = useState(false);
+const { width } = Dimensions.get('window');
+
+const Card = ({ timer, location }) => {
+  const { start, stop, finish, isPaused, minute, second, isVisible, hours } = timer;
+  const { totalDistance, pace, resetLocation } = location;
+
+  // ✅ Profesyonel Zaman Formatı (Saat 0 ise gizle)
+  const formattedTime = useMemo(() => {
+    return [
+      hours > 0 ? hours.toString().padStart(2, '0') : null,
+      minute.toString().padStart(2, '0'),
+      second.toString().padStart(2, '0')
+    ]
+      .filter(Boolean)
+      .join(':');
+  }, [hours, minute, second]);
 
   return (
-    <BlurView intensity={40} tint="light" style={styles.container}>
-      {/* ------- METRICS ------- */}
-      <View style={styles.metricsContainer}>
-        <RunningStats
-          value="4.3"
-          title="Distance (km)"
-          titleFontSize={12}
-          valueFontSize={32}
-          titleFontWeight={200}
-          valueFontWeight={500}
-        />
-        <RunningStats
-          value="43:43"
-          title="Duration"
-          titleFontSize={12}
-          valueFontSize={42}
-          titleFontWeight={400}
-          valueFontWeight={700}
-        />
-        <RunningStats
-          value="2506"
-          title="Steps"
-          titleFontSize={12}
-          valueFontSize={32}
-          titleFontWeight={200}
-          valueFontWeight={500}
+    <BlurView intensity={60} tint="light" style={styles.container}>
+      {/* ANA METRİK: Mesafe */}
+      <View style={styles.primaryMetric}>
+        <RunningStats 
+          value={(totalDistance / 1000).toFixed(2)} 
+          title="Distance (km)" 
+          variant="primary" 
         />
       </View>
 
-      {/* ------- BUTTONS AREA ------- */}
-      <Animated.View style={styles.buttonsWrapper}>
-        {isStart ? (
-          <>
-            <Animated.View layout={LinearTransition}>
-              <Button
-                title="Pause"
-                onPress={() => setIsStart(false)}
-                buttonStyle={styles.pauseBtn}
-                textStyle={styles.buttonText}
-              />
-            </Animated.View>
+      {/* İKİNCİL METRİKLER */}
+      <View style={styles.metricsGrid}>
+        <RunningStats 
+          value={formattedTime} 
+          title="Duration" 
+          // Rakamların titrememesi için stil prop'u ekledik (RunningStats içinde karşılanmalı)
+          textStyle={styles.tabularNumbers} 
+        />
+        <RunningStats value={`344`} title="Steps" />
+        <RunningStats value={pace} title="Pace" />
+        <RunningStats value={`344`} title="Calories" />
+      </View>
 
-            <Animated.View layout={LinearTransition}>
-              <Button
-                title="Stop"
-                onPress={() => setIsStart(false)}
-                buttonStyle={styles.stopBtn}
-                textStyle={styles.buttonText}
-              />
-            </Animated.View>
-          </>
-        ) : (
-          <Animated.View layout={LinearTransition}>
+      {/* AKSİYON BUTONLARI */}
+      <View style={styles.actionArea}>
+        {!isVisible ? (
+          <Animated.View entering={FadeIn} exiting={FadeOut} layout={LinearTransition} style={{ width: '100%' }}>
             <Button
-              title="Start"
-              onPress={() => setIsStart(true)}
+              title="START WALKING"
+              onPress={start}
               buttonStyle={styles.startBtn}
               textStyle={styles.buttonText}
+              icon={<Ionicons name="walk" size={24} color="#fbfbfb" />}
+            />
+          </Animated.View>
+        ) : (
+          <Animated.View entering={FadeIn} layout={LinearTransition} style={styles.activeButtonContainer}>
+            <Button
+              onPress={stop}
+              buttonStyle={styles.pauseBtn}
+              icon={isPaused 
+                ? <Ionicons name="play-circle-outline" size={32} color="#fbfbfb" /> 
+                : <Ionicons name="pause-circle-outline" size={32} color="#fbfbfb" />
+              }
+            />
+            <Button
+              onPress={() => finish(() => resetLocation())}
+              buttonStyle={styles.stopBtn}
+              icon={<Ionicons name="stop-circle-outline" size={32} color="#fbfbfb" />}
             />
           </Animated.View>
         )}
-      </Animated.View>
+      </View>
     </BlurView>
   );
 };
 
-export default Card;
-
 const styles = StyleSheet.create({
   container: {
-    width: '90%',
-    height: 200,
-    position: 'absolute',
-    bottom: 100,
-    padding: 20,
-    borderRadius: 20,
+    width: width * 0.9,
+    bottom: 90,
+    padding: 24,
+    borderRadius: 50,
     overflow: 'hidden',
-    borderWidth: 0.5,
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+    backgroundColor: 'rgba(255,255,255,0.1)', // Hafif bir arka plan
   },
-
-  metricsContainer: {
-    width: '100%',
+  primaryMetric: {
+    marginBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.05)',
+    paddingBottom: 10,
+  },
+  metricsGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-end',
+    marginBottom: 25,
   },
-
-  buttonsWrapper: {
-    width: '100%',
-    marginTop: 25,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
+  tabularNumbers: {
+    // 💡 KRİTİK: Saniyeler değiştikçe rakamların zıplamasını/titremesini engeller
+    fontVariant: ['tabular-nums'], 
   },
-
-  startBtn: {
-    width: 300,
-    height: 50,
-    backgroundColor: 'green',
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
+  actionArea: { 
+    height: 60, 
+    justifyContent: 'center' 
   },
-
-  pauseBtn: {
-    width: 150,
-    height: 50,
-    backgroundColor: '#2d3748',
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderColor: '#2d3748',
+  activeButtonContainer: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    gap: 15 
   },
-
-  stopBtn: {
-    width: 150,
-    height: 50,
-    backgroundColor: '#ff3b30',
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderColor: '#ff3b30',
+  startBtn: { 
+    backgroundColor: '#007AFF', 
+    borderRadius: 100, 
+    height: 55,
+    shadowColor: '#007AFF',
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
   },
-
-  buttonText: {
-    color: '#fbfbfb',
-    fontSize: 18,
-    fontWeight: '900',
+  pauseBtn: { 
+    flex: 1, 
+    backgroundColor: '#FF9500', 
+    borderRadius: 100, 
+    height: 55 
   },
+  stopBtn: { 
+    flex: 1, 
+    backgroundColor: '#FF3B30', 
+    borderRadius: 100, 
+    height: 55 
+  },
+  buttonText: { 
+    color: '#fff', 
+    fontWeight: 'bold', 
+    fontSize: 16 
+  }
 });
+
+export default Card;

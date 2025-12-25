@@ -1,102 +1,80 @@
 import { AppleMaps, GoogleMaps } from 'expo-maps';
-import {
-  AppleMapsMapStyleElevation,
-  AppleMapsMapType,
-} from 'expo-maps/build/apple/AppleMaps.types';
-import { Alert, Platform, Text, View } from 'react-native';
-import useLocation from '../../hooks/useLocation';
+import { AppleMapsMapType } from 'expo-maps/build/apple/AppleMaps.types';
+import { Platform, View, StyleSheet, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import useLocation from '../../../hooks/useLocation';
+import useStopWatchTimer from '@/hooks/useStopWatchTimer';
+import Card from '@/components/map/Card';
+import { useState } from 'react';
+import ModalComponent from '@/components/ModalComponent';
+import { Button } from '@/components';
 
 export default function Home() {
-  const { longitude, latitude, errorMsg } = useLocation();
+  const timer = useStopWatchTimer();
+  
+  // timer.isVisible: Antrenman başladı mı kontrolü
+  const locationData = useLocation(timer.isActive, timer.totalSeconds, timer.isVisible);
 
-  //dummy route data
-  const route = [
-    { latitude: 37.785834, longitude: -122.406417 }, // Start
-    { latitude: 37.7862, longitude: -122.4059 },
-    { latitude: 37.7862, longitude: -122.4058 },
-    { latitude: 37.7862, longitude: -122.4057 },
-    { latitude: 37.7862, longitude: -122.4056 },
-    { latitude: 37.7862, longitude: -122.4055 },
-    { latitude: 37.7862, longitude: -122.4054 },
-    { latitude: 37.7862, longitude: -122.4053 },
-    { latitude: 37.7862, longitude: -122.4052 },
-    { latitude: 37.7862, longitude: -122.4051 },
-    { latitude: 37.7862, longitude: -122.405 },
+  const { longitude, latitude, segments } = locationData;
 
-    { latitude: 37.7866, longitude: -122.4053 },
-    { latitude: 37.7869, longitude: -122.4063 },
-    { latitude: 37.7864, longitude: -122.407 },
-    { latitude: 37.7859, longitude: -122.4078 },
-  ];
+  const [isFollowing, setIsFollowing] = useState(true);
+  const [isVisible, setIsVisible] = useState(false)
 
-  if (Platform.OS === 'ios') {
-    return (
-      <SafeAreaView edges={[]} style={{ flex: 1 }}>
+
+  return (
+    <SafeAreaView edges={[]} style={{ flex: 1 }}>
+      {Platform.OS === 'ios' ? (
         <AppleMaps.View
           style={{ flex: 1 }}
           properties={{
-            isTrafficEnabled: false,
             mapType: AppleMapsMapType.STANDARD,
-            selectionEnabled: false,
             isMyLocationEnabled: true,
-            elevation: AppleMapsMapStyleElevation.AUTOMATIC,
+            
           }}
-          circles={[
-            {
-              center: { latitude, longitude },
-              radius: 50, // metre cinsinden yarıçap
-              color: 'rgba(14,122,254,0.3)', // dolgu rengi
-              strokeColor: 'blue',
-            },
-          ]}
+          onCameraMoveStarted={(event) => {
+            if (event.reason === 'userInteraction') {
+              setIsFollowing(false);
+              console.log('isFollowing? : ', isFollowing);
+            }
+          }}
           cameraPosition={
-            longitude && latitude
-              ? {
-                  coordinates: {
-                    latitude: latitude,
-                    longitude: longitude,
-                  },
-                  zoom: 17,
-                }
-              : undefined
-          }
-          polylines={[
-            {
-              coordinates: route,
-              color: '#0E7AFE',
-              width: 4,
-            },
-          ]}
-        />
+            (latitude && isFollowing) ? {
+              coordinates: { latitude , longitude },
+              zoom: 16,
+            } : { }
+          } 
+          polylines={segments.map((s, i) => ({
+            key: `segment-${i}`,
+            coordinates: s.coords,
+            color: s.color,
+            width: 5,
+            jointType: 'round',
+            capType: 'round',
+          }))}
+          
 
-        <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
-        </View>
-      </SafeAreaView>
-    );
-  } else if (Platform.OS === 'android') {
-    return (
-      <SafeAreaView edges={[]} style={{ flex: 1 }}>
-        <GoogleMaps.View
-          style={{ flex: 1 }}
-          cameraPosition={
-            longitude && latitude
-              ? {
-                  coordinates: {
-                    latitude: latitude,
-                    longitude: longitude,
-                  },
-                  zoom: 16,
-                }
-              : undefined
-          }
         />
-      </SafeAreaView>
-    );
-  } else {
-    return <Text>Maps are only available on Android and iOS</Text>;
-  }
+      ) : (
+        <GoogleMaps.View style={{ flex: 1 }} />
+      )}
+
+      <View style={styles.cardOverlay}>
+        <Card timer={timer} location={locationData} />
+
+        <Button title="Show Modal" onPress={() => setIsVisible(true)} buttonStyle={{ marginBottom: 10 , position: 'absolute', bottom: 500 }} />
+
+        <ModalComponent visible={isVisible} onPress={() => setIsVisible(false)} />
+      </View>
+    </SafeAreaView>
+  );
 }
 
-const styles = {};
+const styles = StyleSheet.create({
+  cardOverlay: {
+    width: '100%',
+    position: 'absolute',
+    bottom: 0,
+    alignItems: 'center',
+  }
+});

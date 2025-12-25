@@ -32,7 +32,7 @@ const UserAverageStats = () => {
             setWeekly(false);
             setMonthly(false);
           }}
-          buttonStyle={{ ...(last && { borderColor: '#0E7AFE' }), width: 105 }}
+          buttonStyle={{ ...(last && { borderColor: '#0E7AFE' }), width: 105, borderRadius:50 }}
           textStyle={{ ...(last && { color: '#0E7AFE' }) }}
         />
         <Button
@@ -42,7 +42,7 @@ const UserAverageStats = () => {
             setWeekly(true);
             setMonthly(false);
           }}
-          buttonStyle={{ ...(weekly && { borderColor: '#0E7AFE' }), width: 105 }}
+          buttonStyle={{ ...(weekly && { borderColor: '#0E7AFE' }), width: 105, borderRadius:50 }}
           textStyle={{ ...(weekly && { color: '#0E7AFE' }) }}
         />
         <Button
@@ -52,7 +52,7 @@ const UserAverageStats = () => {
             setWeekly(false);
             setMonthly(true);
           }}
-          buttonStyle={{ ...(monthly && { borderColor: '#0E7AFE' }), width: 105 }}
+          buttonStyle={{ ...(monthly && { borderColor: '#0E7AFE' }), width: 105, borderRadius:50 }}
           textStyle={{ ...(monthly && { color: '#0E7AFE' }) }}
         />
       </View>
@@ -102,9 +102,9 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'flex-start',
-    borderRadius: 20,
-    borderWidth: 0.4,
-    borderColor: '#0E7AFE',
+    borderRadius: 50,
+    borderWidth: 3,
+    borderColor: '#666',
     padding: 20,
     backgroundColor: '#fbfbfb',
   },

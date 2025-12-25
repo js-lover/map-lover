@@ -1,7 +1,7 @@
 import React from 'react';
 import { Redirect } from 'expo-router';
 import { NativeTabs, Icon, Label } from 'expo-router/unstable-native-tabs';
-import { useAuthContext } from '../hooks/useAuthContext';
+import { useAuthContext } from '../../hooks/useAuthContext';
 
 export default function PrivateLayout() {
   const { isLoading, isLoggedIn } = useAuthContext();
@@ -13,16 +13,16 @@ export default function PrivateLayout() {
     <NativeTabs backgroundColor="black">
       <NativeTabs.Trigger name="map">
         <Label>Map</Label>
-        <Icon sf="map" />
+        <Icon sf="map.fill" selectedColor="violet" />
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="history">
-        <Icon sf="clock.arrow.circlepath" />
+        <Icon sf="clock.arrow.circlepath" selectedColor="violet" />
         <Label>History</Label>
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="profile">
-        <Icon sf="person" />
+        <Icon sf="person.fill" selectedColor="violet" />
         <Label>Profile</Label>
       </NativeTabs.Trigger>
     </NativeTabs>

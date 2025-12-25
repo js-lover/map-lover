@@ -1,4 +1,4 @@
-import { useAuthContext } from '../app/hooks/useAuthContext';
+import { useAuthContext } from '../hooks/useAuthContext';
 import { SplashScreen } from 'expo-router';
 
 SplashScreen.preventAutoHideAsync();

@@ -39,8 +39,10 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'flex-start',
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: 50, 
+    padding: 32,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.1)',
     backgroundColor: '#fbfbfb',
   },
 });
