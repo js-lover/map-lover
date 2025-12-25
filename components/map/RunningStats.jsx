@@ -1,17 +1,17 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 
-const RunningStats = ({ title, value, variant = 'normal' }) => {
+const RunningStats = ({ title, value, variant = 'normal', valueStyle, titleStyle, containerStyle }) => {
   const isPrimary = variant === 'primary';
 
   return (
-    <View style={styles.statBox}>
+    <View style={[styles.statBox , containerStyle]}>
       {/* Sabit yükseklik + overflow */}
       <View style={styles.valueContainer}>
-        <Text style={[styles.value, isPrimary && styles.primaryValue]}>{value}</Text>
+        <Text style={[styles.value, isPrimary && styles.primaryValue, valueStyle]}>{value}</Text>
       </View>
 
-      <Text style={[styles.title, isPrimary && styles.primaryTitle]}>{title}</Text>
+      <Text style={[styles.title, isPrimary && styles.primaryTitle, titleStyle]}>{title}</Text>
     </View>
   );
 };

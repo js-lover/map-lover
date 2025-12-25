@@ -1,102 +1,94 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import * as Location from 'expo-location';
 
-/* 🌍 Haversine helper */
 const EARTH_RADIUS = 6371000;
 
 const haversineDistance = (lat1, lon1, lat2, lon2) => {
-  const toRad = (value) => (value * Math.PI) / 180;
-
+  const toRad = (v) => (v * Math.PI) / 180;
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
-
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) *
-      Math.cos(toRad(lat2)) *
-      Math.sin(dLon / 2) ** 2;
-
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return EARTH_RADIUS * c; // metre
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return EARTH_RADIUS * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 };
 
-// calculates pace in min/km format
-const formatPace = (secondsPerKm) => {
-  if (!secondsPerKm || !isFinite(secondsPerKm)) return '00:00';
-
-  const minutes = Math.floor(secondsPerKm / 60);
-  const seconds = Math.floor(secondsPerKm % 60);
-
-  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+const formatPace = (s) => {
+  if (!s || !isFinite(s) || s <= 0) return '00:00';
+  const m = Math.floor(s / 60);
+  return `${m}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
 };
 
-const useLocation = (isActive, totalSeconds) => {
-  const [errorMsg, setErrorMsg] = useState(null);
+const useLocation = (isActive, totalSeconds, isStarted) => {
   const [location, setLocation] = useState(null);
-
-  const [totalDistance, setTotalDistance] = useState(40);
-  const [routeCoordinates, setRouteCoordinates] = useState([]);
-
+  const [totalDistance, setTotalDistance] = useState(0);
+  const [segments, setSegments] = useState([]);
+  
   const lastCoords = useRef(null);
   const subscriptionRef = useRef(null);
 
   useEffect(() => {
+    // BUG FIX: Antrenman başlamadıysa dinleyiciyi başlatma ve stateleri temizle
+    if (!isStarted) {
+      setSegments([]);
+      setTotalDistance(0);
+      lastCoords.current = null;
+      return;
+    }
+
     let isMounted = true;
 
     const startWatching = async () => {
-      try {
-        const { status } =
-          await Location.requestForegroundPermissionsAsync();
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') return;
 
-        if (status !== 'granted') {
-          setErrorMsg('Location permission denied');
-          return;
-        }
+      subscriptionRef.current = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.BestForNavigation,
+          distanceInterval: 1, // Test: 1m, Prod: 5m
+          timeInterval: 1000,
+        },
+        (loc) => {
+          if (!isMounted) return;
+          const { latitude, longitude, accuracy } = loc.coords;
+          const newPoint = { latitude, longitude };
+          
+          // Her zaman güncel konumu set et (Harita takibi için)
+          setLocation(newPoint);
 
-        subscriptionRef.current =
-          await Location.watchPositionAsync(
-            {
-              accuracy: Location.Accuracy.High,
-              distanceInterval: 5,
-            },
-            (loc) => {
-              if (!isMounted) return;
+          // Prod: accuracy > 25 ise güvenme
+          if (accuracy > 80) return; 
 
-              const { latitude, longitude, accuracy } = loc.coords;
-
-              setLocation({ latitude, longitude });
-
-              if (!isActive) return;
-              if (accuracy > 20) return;
-
-              if (!lastCoords.current) {
-                lastCoords.current = { latitude, longitude };
-                setRouteCoordinates([{ latitude, longitude }]);
-                return;
-              }
-
-              const distance = haversineDistance(
-                lastCoords.current.latitude,
-                lastCoords.current.longitude,
-                latitude,
-                longitude
-              );
-
-              if (distance < 3) return;
-
-              setTotalDistance((prev) => prev + distance);
-              setRouteCoordinates((prev) => [
-                ...prev,
-                { latitude, longitude },
-              ]);
-
-              lastCoords.current = { latitude, longitude };
+          setSegments(prevSegments => {
+            const currentColor = isActive ? '#0E7AFE' : '#FF3B30';
+            
+            if (prevSegments.length === 0) {
+              return [{ coords: [newPoint], color: currentColor }];
             }
-          );
-      } catch (e) {
-        setErrorMsg(e?.message || 'Failed to watch location');
-      }
+
+            const lastSegment = prevSegments[prevSegments.length - 1];
+
+            // Durum (Pause/Resume) değiştiyse yeni segment başlat
+            if (lastSegment.color !== currentColor) {
+              const connPoint = lastSegment.coords[lastSegment.coords.length - 1];
+              return [...prevSegments, { coords: [connPoint, newPoint], color: currentColor }];
+            }
+
+            // Aynı moddaysak noktayı ekle
+            const updatedLastSegment = {
+              ...lastSegment,
+              coords: [...lastSegment.coords, newPoint]
+            };
+            return [...prevSegments.slice(0, -1), updatedLastSegment];
+          });
+
+          // Sadece aktifken ve önceki koordinat varken mesafe hesapla
+          if (isActive && lastCoords.current) {
+            const dist = haversineDistance(lastCoords.current.latitude, lastCoords.current.longitude, latitude, longitude);
+            if (dist > 1.5) setTotalDistance(prev => prev + dist);
+          }
+          
+          lastCoords.current = newPoint;
+        }
+      );
     };
 
     startWatching();
@@ -108,21 +100,26 @@ const useLocation = (isActive, totalSeconds) => {
         subscriptionRef.current = null;
       }
     };
-  }, [isActive]);
+  }, [isActive, isStarted]); // isStarted eklendi!
 
-  // ✅ PACE BURADA HESAPLANIR (SORUN ÇÖZÜLDÜ)
-  const pace =
-    totalDistance > 10
-      ? formatPace(totalSeconds / (totalDistance / 1000))
-      : '00:30';
+  const pace = useMemo(() => {
+    if (totalDistance < 10 || totalSeconds < 60) return '00:00';
+    return formatPace(totalSeconds / (totalDistance / 1000));
+  }, [totalDistance, Math.floor(totalSeconds / 60)]);
 
-  return {
-    latitude: location?.latitude ?? null,
-    longitude: location?.longitude ?? null,
-    totalDistance,
-    routeCoordinates,
-    errorMsg,
-    pace,
+  const resetLocation = () => {
+    setTotalDistance(0);
+    setSegments([]);
+    lastCoords.current = null;
+  };
+
+  return { 
+    latitude: location?.latitude, 
+    longitude: location?.longitude, 
+    totalDistance, 
+    segments, 
+    pace, 
+    resetLocation 
   };
 };
 

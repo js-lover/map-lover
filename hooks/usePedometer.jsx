@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Pedometer } from 'expo-sensors';
+//import { Pedometer } from 'expo-sensors';
 
 const usePedometer = (isActive) => {
   const [stepCount, setStepCount] = useState(0);

@@ -1,91 +1,79 @@
-import { StyleSheet, View, Dimensions } from 'react-native';
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
+import { StyleSheet, View, Dimensions, Text } from 'react-native';
 import { BlurView } from 'expo-blur';
-import RunningStats from './RunningStats';
-import { Button } from '../index'; // Custom buton bileşeniniz
+import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
-import useStopWatchTimer from '@/hooks/useStopWatchTimer';
-import useLocation from '@/hooks/useLocation';
-import usePedometer from '@/hooks/usePedometer';
-import { EvilIcons, Ionicons } from '@expo/vector-icons';
 
-
+import RunningStats from './RunningStats';
+import { Button } from '../index';
 
 const { width } = Dimensions.get('window');
 
+const Card = ({ timer, location }) => {
+  const { start, stop, finish, isPaused, minute, second, isVisible, hours } = timer;
+  const { totalDistance, pace, resetLocation } = location;
 
-
-const Card = () => {
-
-
-
-
-  const {start,stop,finish ,isActive,isPaused,isStart, isStopped, minute, second, isVisible} = useStopWatchTimer();
-const {
-  latitude,
-  longitude,
-  totalDistance,
-  routeCoordinates,
-  pace
-} = useLocation(isActive);
-
-const { stepCount, isPedometerAvailable, errorMsg } = usePedometer(isActive);
-
+  // ✅ Profesyonel Zaman Formatı (Saat 0 ise gizle)
+  const formattedTime = useMemo(() => {
+    return [
+      hours > 0 ? hours.toString().padStart(2, '0') : null,
+      minute.toString().padStart(2, '0'),
+      second.toString().padStart(2, '0')
+    ]
+      .filter(Boolean)
+      .join(':');
+  }, [hours, minute, second]);
 
   return (
-    <BlurView intensity={50} tint="light" style={styles.container}>
+    <BlurView intensity={60} tint="light" style={styles.container}>
       {/* ANA METRİK: Mesafe */}
       <View style={styles.primaryMetric}>
-        <RunningStats value={`${totalDistance / 1000}`} title="Distance (km)" variant="primary" />
+        <RunningStats 
+          value={(totalDistance / 1000).toFixed(2)} 
+          title="Distance (km)" 
+          variant="primary" 
+        />
       </View>
 
-      {/* İKİNCİL METRİKLER: Grid Düzeni */}
+      {/* İKİNCİL METRİKLER */}
       <View style={styles.metricsGrid}>
-        <RunningStats value={`${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}`} title="Duration" />
-        <RunningStats value={`${stepCount}`} title="Steps" />
-        <RunningStats value={pace} title="Pace (min/km)" />
-        <RunningStats value={`${caloriesBurned}`} title="Calories" />
+        <RunningStats 
+          value={formattedTime} 
+          title="Duration" 
+          // Rakamların titrememesi için stil prop'u ekledik (RunningStats içinde karşılanmalı)
+          textStyle={styles.tabularNumbers} 
+        />
+        <RunningStats value={`344`} title="Steps" />
+        <RunningStats value={pace} title="Pace" />
+        <RunningStats value={`344`} title="Calories" />
       </View>
 
-      {/* BUTONLAR: Dinamik Genişlik */}
+      {/* AKSİYON BUTONLARI */}
       <View style={styles.actionArea}>
         {!isVisible ? (
-          <Animated.View
-            entering={FadeIn}
-            exiting={FadeOut}
-            layout={LinearTransition}
-            style={{ width: '100%' }}>
+          <Animated.View entering={FadeIn} exiting={FadeOut} layout={LinearTransition} style={{ width: '100%' }}>
             <Button
               title="START WALKING"
-              onPress={() => {
-                start();
-              }}
+              onPress={start}
               buttonStyle={styles.startBtn}
               textStyle={styles.buttonText}
               icon={<Ionicons name="walk" size={24} color="#fbfbfb" />}
             />
           </Animated.View>
         ) : (
-          <Animated.View
-            entering={FadeIn}
-            layout={LinearTransition}
-            style={styles.activeButtonContainer}>
+          <Animated.View entering={FadeIn} layout={LinearTransition} style={styles.activeButtonContainer}>
             <Button
-              onPress={() => {
-                stop();
-              }}
+              onPress={stop}
               buttonStyle={styles.pauseBtn}
-              textStyle={styles.buttonText}
-              icon={isPaused ?   <Ionicons name="pause-circle-outline" size={36} color="#fbfbfb"  /> : <Ionicons name="play-circle-outline" size={36} color="#fbfbfb"  />}
+              icon={isPaused 
+                ? <Ionicons name="play-circle-outline" size={32} color="#fbfbfb" /> 
+                : <Ionicons name="pause-circle-outline" size={32} color="#fbfbfb" />
+              }
             />
             <Button
-              onPress={() => {
-                finish();
-              }}
+              onPress={() => finish(() => resetLocation())}
               buttonStyle={styles.stopBtn}
-              textStyle={styles.buttonText}
-              icon={<Ionicons name="stop-circle-outline" size={36} color="#fbfbfb"  />}
-
+              icon={<Ionicons name="stop-circle-outline" size={32} color="#fbfbfb" />}
             />
           </Animated.View>
         )}
@@ -97,71 +85,64 @@ const { stepCount, isPedometerAvailable, errorMsg } = usePedometer(isActive);
 const styles = StyleSheet.create({
   container: {
     width: width * 0.9,
-    alignSelf: 'center',
-    position: 'absolute',
     bottom: 90,
     padding: 24,
-    borderRadius: 60,
+    borderRadius: 50,
     overflow: 'hidden',
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    borderWidth: 2,
-    borderColor: 'rgba(0,0,0,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+    backgroundColor: 'rgba(255,255,255,0.1)', // Hafif bir arka plan
   },
   primaryMetric: {
     marginBottom: 20,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: 'rgba(0,0,0,0.3)',
-    paddingBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.05)',
+    paddingBottom: 10,
   },
   metricsGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 20,
+    marginBottom: 25,
   },
-  actionArea: {
-    flexDirection: 'row',
+  tabularNumbers: {
+    // 💡 KRİTİK: Saniyeler değiştikçe rakamların zıplamasını/titremesini engeller
+    fontVariant: ['tabular-nums'], 
+  },
+  actionArea: { 
+    height: 60, 
+    justifyContent: 'center' 
+  },
+  activeButtonContainer: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    gap: 15 
+  },
+  startBtn: { 
+    backgroundColor: '#007AFF', 
+    borderRadius: 100, 
     height: 55,
-    alignItems: 'center',
+    shadowColor: '#007AFF',
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
   },
-  activeButtonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    gap: 12,
+  pauseBtn: { 
+    flex: 1, 
+    backgroundColor: '#FF9500', 
+    borderRadius: 100, 
+    height: 55 
   },
-  startBtn: {
-    backgroundColor: '#007AFF', // Daha profesyonel bir mavi veya canlı yeşil
-    height: 55,
-    borderRadius: 100,
-        borderWidth: 0,
-
+  stopBtn: { 
+    flex: 1, 
+    backgroundColor: '#FF3B30', 
+    borderRadius: 100, 
+    height: 55 
   },
-  pauseBtn: {
-    
-    width: "48%",
-    backgroundColor: '#FF9500',
-    height: 55,
-    borderRadius: 100,
-        borderWidth: 0,
-
-  },
-  stopBtn: {
-    width: "48%",
-    backgroundColor: '#FF3B30',
-    height: 55,
-    borderRadius: 100,
-    borderWidth: 0,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#fbfbfb',
-    letterSpacing: 0.5,
-  },
+  buttonText: { 
+    color: '#fff', 
+    fontWeight: 'bold', 
+    fontSize: 16 
+  }
 });
 
 export default Card;

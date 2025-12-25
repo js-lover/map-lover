@@ -28,23 +28,24 @@ export default {
       [
         'expo-location',
         {
-          locationAlwaysAndWhenInUsePermission: 'Allow $(PRODUCT_NAME) to use your location.',
+          locationAlwaysAndWhenInUsePermission:
+            'Allow $(PRODUCT_NAME) to use your location.',
         },
       ],
 
       'expo-sqlite',
       'expo-secure-store',
 
-      // Apple Authentication plugini — eklemek iyi bir pratik.
-      'expo-apple-authentication',
+      // ❌ KALDIRILDI → signing zorunluluğu yapıyordu
+      // 'expo-apple-authentication',
 
       [
-        "expo-image-picker",
+        'expo-image-picker',
         {
-          "photosPermission": "Menza wants to accesses your photos to let you change profile photo."
-        }
-      ]
-
+          photosPermission:
+            'Menza wants to access your photos to let you change profile photo.',
+        },
+      ],
     ],
 
     experiments: {
@@ -68,10 +69,9 @@ export default {
       supportsTablet: true,
       bundleIdentifier: 'com.serhatbarisaydin.menza',
 
-      // Apple Sign-In için zorunlu ayar
-      usesAppleSignIn: true,
+      // ❌ KAPATILDI → signing istemesin diye
+      usesAppleSignIn: false,
 
-      // AppleAuthentication için minimum iOS gereksinimi
       deploymentTarget: '13.0',
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
