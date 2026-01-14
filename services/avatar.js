@@ -1,5 +1,8 @@
 import * as ImagePicker from 'expo-image-picker';
 
+import { supabase } from '@/lib/supabase';
+import * as FileSystem from 'expo-file-system';
+
 export async function pickImage() {
   const result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -14,9 +17,6 @@ export async function pickImage() {
 
   return null;
 }
-
-import { supabase } from '@/lib/supabase';
-import * as FileSystem from 'expo-file-system';
 
 export async function uploadAvatar(uri, userId) {
   const base64 = await FileSystem.readAsStringAsync(uri, {

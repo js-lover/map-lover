@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 
-export default function Loader({ visible = false, backgroundColor = 'rgba(0,0,0,0.5)' }) {
+export default function Loader({ visible = false, backgroundColor = 'rgba(0,0,0,0.9)' }) {
   if (!visible) return null;
 
   return (
@@ -18,7 +18,7 @@ export default function Loader({ visible = false, backgroundColor = 'rgba(0,0,0,
         alignItems: 'center',
         zIndex: 9999,
       }}>
-      <ActivityIndicator size="large" color="#34C759" />
+      <ActivityIndicator size="large" color="#666"  />
     </View>
   );
 }
