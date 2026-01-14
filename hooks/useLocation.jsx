@@ -38,12 +38,13 @@ const useLocation = (isActive, totalSeconds, isStarted) => {
 
     const startWatching = async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
+      
       if (status !== 'granted') return;
 
       subscriptionRef.current = await Location.watchPositionAsync(
         {
           accuracy: Location.Accuracy.BestForNavigation,
-          distanceInterval: 1, // Test: 1m, Prod: 5m
+          distanceInterval: 5, // Test: 1m, Prod: 5m
           timeInterval: 1000,
         },
         (loc) => {
@@ -54,14 +55,16 @@ const useLocation = (isActive, totalSeconds, isStarted) => {
           // Her zaman güncel konumu set et (Harita takibi için)
           setLocation(newPoint);
 
+
           // Prod: accuracy > 25 ise güvenme
-          if (accuracy > 80) return; 
+          if (accuracy > 25) return; 
 
           setSegments(prevSegments => {
             const currentColor = isActive ? '#0E7AFE' : '#FF3B30';
             
             if (prevSegments.length === 0) {
               return [{ coords: [newPoint], color: currentColor }];
+              
             }
 
             const lastSegment = prevSegments[prevSegments.length - 1];

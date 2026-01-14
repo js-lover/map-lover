@@ -14,16 +14,18 @@ const UserAverageStats = () => {
   const [monthly, setMonthly] = useState(false);
 
   return (
-    <>
+    <View style={styles.container}>
       <View
         style={{
           flexDirection: 'row',
           justifyContent: 'center',
+          alignItems: 'center',
           width: '100%',
           height: 35,
-          marginTop:25,
+          marginTop:12,
           gap: 10,
-          marginBottom: 10,
+          marginVertical:12,
+          
         }}>
         <Button
           title="Last"
@@ -32,8 +34,8 @@ const UserAverageStats = () => {
             setWeekly(false);
             setMonthly(false);
           }}
-          buttonStyle={{ ...(last && { borderColor: '#0E7AFE' }), width: 105, borderRadius:50 }}
-          textStyle={{ ...(last && { color: '#0E7AFE' }) }}
+          buttonStyle={{ ...(last && { borderColor: '#22c55e' }), height: 30,width: 105, borderRadius: 8 }}
+          textStyle={{ ...(last && { color: '#22c55e' }) }}
         />
         <Button
           title="Weekly"
@@ -42,8 +44,8 @@ const UserAverageStats = () => {
             setWeekly(true);
             setMonthly(false);
           }}
-          buttonStyle={{ ...(weekly && { borderColor: '#0E7AFE' }), width: 105, borderRadius:50 }}
-          textStyle={{ ...(weekly && { color: '#0E7AFE' }) }}
+          buttonStyle={{ ...(weekly && { borderColor: '#22c55e' }), height: 30,width: 105, borderRadius:8 }}
+          textStyle={{ ...(weekly && { color: '#22c55e' }) }}
         />
         <Button
           title="Monthly"
@@ -52,8 +54,8 @@ const UserAverageStats = () => {
             setWeekly(false);
             setMonthly(true);
           }}
-          buttonStyle={{ ...(monthly && { borderColor: '#0E7AFE' }), width: 105, borderRadius:50 }}
-          textStyle={{ ...(monthly && { color: '#0E7AFE' }) }}
+          buttonStyle={{ ...(monthly && { borderColor: '#22c55e' }), height: 30,width: 105, borderRadius:8 }}
+          textStyle={{ ...(monthly && { color: '#22c55e' }) }}
         />
       </View>
 
@@ -86,7 +88,7 @@ const UserAverageStats = () => {
           time={7 + ' hours'}
         />
       )}
-    </>
+    </View>
   );
 };
 

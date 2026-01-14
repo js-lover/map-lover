@@ -10,19 +10,19 @@ export default function PrivateLayout() {
   if (!isLoggedIn) return <Redirect href="/public" />;
 
   return (
-    <NativeTabs backgroundColor="black">
+    <NativeTabs>
       <NativeTabs.Trigger name="map">
         <Label>Map</Label>
-        <Icon sf="map.fill" selectedColor="violet" />
+        <Icon sf="map.fill" selectedColor="#22c55e" />
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="history">
-        <Icon sf="clock.arrow.circlepath" selectedColor="violet" />
+        <Icon sf="clock.arrow.circlepath" selectedColor="#22c55e" />
         <Label>History</Label>
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="profile">
-        <Icon sf="person.fill" selectedColor="violet" />
+        <Icon sf="person.fill" selectedColor="#22c55e" />
         <Label>Profile</Label>
       </NativeTabs.Trigger>
     </NativeTabs>

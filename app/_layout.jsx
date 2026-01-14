@@ -13,5 +13,6 @@ export default function RootLayout() {
       <Slot />
       <StatusBar style="auto" />
     </AuthProvider>
+  
   );
 }

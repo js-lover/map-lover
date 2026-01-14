@@ -71,7 +71,6 @@ export default {
 
       // ❌ KAPATILDI → signing istemesin diye
       usesAppleSignIn: false,
-
       deploymentTarget: '13.0',
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,

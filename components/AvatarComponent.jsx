@@ -37,13 +37,7 @@ export default function AvatarComponent({
         }
       />
 
-      <TouchableOpacity
-        onPress={onPress}
-        style={styles.editIcon}
-        activeOpacity={0.7}
-      >
-        <EvilIcons name="pencil" size={24} color="#0E7AFE" />
-      </TouchableOpacity>
+      
     </View>
   );
 }
