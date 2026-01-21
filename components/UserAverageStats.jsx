@@ -1,17 +1,38 @@
 import { StyleSheet, View, Text, Pressable } from 'react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import StatsComponent from './StatsComponent';
 import Animated, { FadeInLeft } from 'react-native-reanimated';
 import DividerComponent from './DividerComponent';
 import Button from './profile/Button';
 import AverageStats from './profile/AverageStats';
+import { useTheme } from '../providers/ThemeProvider';
 
-// last - weekly - monthly
-//Distance - time - workout - calories
-const UserAverageStats = () => {
-  const [last, setLast] = useState(true);
-  const [weekly, setWeekly] = useState(false);
-  const [monthly, setMonthly] = useState(false);
+const UserAverageStats = ({ stats }) => {
+  const { colors } = useTheme();
+  const [activeTab, setActiveTab] = useState('daily'); // daily, weekly, monthly
+
+  // Varsayılan stats yapısı (eğer props gelmezse patlamasın)
+  const defaultStats = {
+    daily: { totalDistance: 0, totalDuration: 0, totalCalories: 0, totalSteps: 0, totalWorkouts: 0 },
+    weekly: { totalDistance: 0, totalDuration: 0, totalCalories: 0, totalSteps: 0, totalWorkouts: 0 },
+    monthly: { totalDistance: 0, totalDuration: 0, totalCalories: 0, totalSteps: 0, totalWorkouts: 0 },
+  };
+
+  const safeStats = stats || defaultStats;
+
+  // Yardımcı format fonksiyonları
+  const formatDistance = (meters) => {
+    return (meters / 1000).toFixed(1) + ' km';
+  };
+
+  const formatDuration = (seconds) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    if (hours > 0) return `${hours} s ${minutes} dk`;
+    return `${minutes} dk`;
+  };
+
+  const currentStats = safeStats[activeTab];
 
   return (
     <View style={styles.container}>
@@ -22,76 +43,58 @@ const UserAverageStats = () => {
           alignItems: 'center',
           width: '100%',
           height: 35,
-          marginTop:12,
+          marginTop: 12,
           gap: 10,
-          marginVertical:12,
-          
+          marginVertical: 12,
         }}>
         <Button
-          title="Last"
-          onPress={() => {
-            setLast(true);
-            setWeekly(false);
-            setMonthly(false);
+          title="Günlük"
+          onPress={() => setActiveTab('daily')}
+          buttonStyle={{
+            borderColor: activeTab === 'daily' ? colors.primary : colors.border,
+            height: 30,
+            width: 105,
+            borderRadius: 8,
+            backgroundColor: activeTab === 'daily' ? colors.primarySubtle : 'transparent'
           }}
-          buttonStyle={{ ...(last && { borderColor: '#22c55e' }), height: 30,width: 105, borderRadius: 8 }}
-          textStyle={{ ...(last && { color: '#22c55e' }) }}
+          textStyle={{ color: activeTab === 'daily' ? colors.primary : colors.textSecondary }}
         />
         <Button
-          title="Weekly"
-          onPress={() => {
-            setLast(false);
-            setWeekly(true);
-            setMonthly(false);
+          title="Haftalık"
+          onPress={() => setActiveTab('weekly')}
+          buttonStyle={{
+            borderColor: activeTab === 'weekly' ? colors.primary : colors.border,
+            height: 30,
+            width: 105,
+            borderRadius: 8,
+            backgroundColor: activeTab === 'weekly' ? colors.primarySubtle : 'transparent'
           }}
-          buttonStyle={{ ...(weekly && { borderColor: '#22c55e' }), height: 30,width: 105, borderRadius:8 }}
-          textStyle={{ ...(weekly && { color: '#22c55e' }) }}
+          textStyle={{ color: activeTab === 'weekly' ? colors.primary : colors.textSecondary }}
         />
         <Button
-          title="Monthly"
-          onPress={() => {
-            setLast(false);
-            setWeekly(false);
-            setMonthly(true);
+          title="Aylık"
+          onPress={() => setActiveTab('monthly')}
+          buttonStyle={{
+            borderColor: activeTab === 'monthly' ? colors.primary : colors.border,
+            height: 30,
+            width: 105,
+            borderRadius: 8,
+            backgroundColor: activeTab === 'monthly' ? colors.primarySubtle : 'transparent'
           }}
-          buttonStyle={{ ...(monthly && { borderColor: '#22c55e' }), height: 30,width: 105, borderRadius:8 }}
-          textStyle={{ ...(monthly && { color: '#22c55e' }) }}
+          textStyle={{ color: activeTab === 'monthly' ? colors.primary : colors.textSecondary }}
         />
       </View>
 
-      {last && (
-        <AverageStats
-          title="Last Stats"
-          calories={690}
-          workouts={4}
-          distance={29 + ' km'}
-          time={7 + ' hours'}
-        />
-      )}
-
-      {weekly && (
-        <AverageStats
-          title="Weekly Average Stats"
-          calories={690}
-          workouts={4}
-          distance={29 + ' km'}
-          time={7 + ' hours'}
-        />
-      )}
-
-      {monthly && (
-        <AverageStats
-          title="Monthly Average Stats"
-          calories={690}
-          workouts={4}
-          distance={29 + ' km'}
-          time={7 + ' hours'}
-        />
-      )}
+      <AverageStats
+        key={activeTab} // Animasyonun tetiklenmesi için key ekledik
+        steps={currentStats.totalSteps}
+        workouts={currentStats.totalWorkouts}
+        distance={formatDistance(currentStats.totalDistance)}
+        time={formatDuration(currentStats.totalDuration)}
+      />
     </View>
   );
 };
-
 export default UserAverageStats;
 
 const styles = StyleSheet.create({

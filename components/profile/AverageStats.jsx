@@ -1,30 +1,29 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
-import Animated, { FadeInLeft, FadeInUp } from 'react-native-reanimated';
+import Animated, { FadeInLeft } from 'react-native-reanimated';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTheme } from '../../providers/ThemeProvider';
 
 const StatItem = ({ icon, iconType = 'ionicons', label, value, delay = 0 }) => {
   const IconComponent = iconType === 'material' ? MaterialCommunityIcons : Ionicons;
+  const { colors } = useTheme();
 
   return (
-    <Animated.View entering={FadeInLeft.duration(400).delay(delay)} style={styles.statItem}>
-      <View style={styles.statIconContainer}>
-        <IconComponent name={icon} size={20} color="#22c55e" />
+    <Animated.View entering={FadeInLeft.duration(400).delay(delay)} style={[styles.statItem, { backgroundColor: colors.surfaceSecondary }]}>
+      <View style={[styles.statIconContainer, { backgroundColor: colors.primarySubtle }]}>
+        <IconComponent name={icon} size={20} color={colors.primary} />
       </View>
       <View style={styles.statContent}>
-        <Text style={styles.statValue}>{value || '0'}</Text>
-        <Text style={styles.statLabel}>{label}</Text>
+        <Text style={[styles.statValue, { color: colors.text }]}>{value || '0'}</Text>
+        <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{label}</Text>
       </View>
     </Animated.View>
   );
 };
 
-const WeeklyStats = ({ title, calories, time, distance, workouts }) => {
+const WeeklyStats = ({ title, steps, time, distance, workouts }) => {
   return (
     <View style={styles.container}>
-      
-
-
       <View style={styles.statsGrid}>
         <StatItem
           icon="map-outline"
@@ -46,9 +45,9 @@ const WeeklyStats = ({ title, calories, time, distance, workouts }) => {
           delay={300}
         />
         <StatItem
-          icon="flame-outline"
-          label="Kalori"
-          value={calories || '0 kcal'}
+          icon="footsteps-outline"
+          label="Adım"
+          value={steps || '0'}
           delay={400}
         />
       </View>
@@ -61,13 +60,6 @@ export default WeeklyStats;
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#fff',
-    letterSpacing: -0.3,
   },
   statsGrid: {
     flexDirection: 'row',
@@ -78,7 +70,6 @@ const styles = StyleSheet.create({
     width: '47%',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(34, 197, 94, 0.08)',
     borderRadius: 14,
     padding: 14,
     gap: 12,
@@ -87,7 +78,6 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 12,
-    backgroundColor: 'rgba(34, 197, 94, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -97,13 +87,10 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#fff',
   },
   statLabel: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#64748b',
     marginTop: 2,
   },
 });
-

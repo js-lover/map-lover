@@ -51,3 +51,20 @@ export async function getUserProfile() {
 
   return data;
 }
+
+// Delete account
+export async function deleteUserAccount() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Oturum bulunamadı.');
+
+  // Supabase RPC fonksiyonunu çağır (auth.users'dan siler)
+  // Bu fonksiyonun Supabase SQL Editor'da oluşturulmuş olması gerekir.
+  const { error: deleteError } = await supabase.rpc('delete_user');
+
+  if (deleteError) throw deleteError;
+
+  // Oturumu kapat (yerel temizlik için)
+  await supabase.auth.signOut();
+
+  return true;
+}

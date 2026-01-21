@@ -1,7 +1,10 @@
 import React from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { useTheme } from '../providers/ThemeProvider';
 
-export default function Loader({ visible = false, backgroundColor = 'rgba(0,0,0,0.9)' }) {
+export default function Loader({ visible = false }) {
+  const { colors, isDark } = useTheme();
+
   if (!visible) return null;
 
   return (
@@ -12,13 +15,12 @@ export default function Loader({ visible = false, backgroundColor = 'rgba(0,0,0,
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: backgroundColor,
-
+        backgroundColor: isDark ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.7)',
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 9999,
       }}>
-      <ActivityIndicator size="large" color="#666"  />
+      <ActivityIndicator size="large" color={colors.primary} />
     </View>
   );
 }

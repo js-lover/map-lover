@@ -1,16 +1,19 @@
-import { FlatList, StyleSheet, Text, View, RefreshControl } from 'react-native';
+import { FlatList, StyleSheet, Text, View, RefreshControl, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { RouteHistoryComponent, SearchBar } from '../../../components';
+import { RouteHistoryComponent, SearchBar, LoadingComponent } from '../../../components';
 import Animated, { FadeInLeft } from 'react-native-reanimated';
 import { router } from 'expo-router';
 import { useEffect, useState, useCallback } from 'react';
 import { WorkoutHistoryService } from '@/services/workoutService';
+import { useTheme } from '@/providers/ThemeProvider';
 
 
 const history = () => {
+  const { colors } = useTheme();
   const [filteredRoutes, setFilteredRoutes] = useState();
   const [allRoutes, setAllRoutes] = useState();
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSearch = (text) => {
     const lowerText = text.toLowerCase();
@@ -33,6 +36,36 @@ const history = () => {
     }
   }
 
+  const handleDelete = (workoutId, workoutName) => {
+    Alert.alert(
+      'Yürüyüşü Sil',
+      `"${workoutName}" kaydını silmek istediğinize emin misiniz?`,
+      [
+        { text: 'Vazgeç', style: 'cancel' },
+        {
+          text: 'Sil',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setLoading(true);
+              const result = await WorkoutHistoryService.deleteWorkout(workoutId);
+              if (result.success) {
+                // Listeyi güncelle
+                await fetchUserWorkouts();
+              } else {
+                Alert.alert('Hata', 'Antrenman silinirken bir sorun oluştu.');
+              }
+            } catch (error) {
+              console.error('Delete error:', error);
+            } finally {
+              setLoading(false);
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await fetchUserWorkouts();
@@ -41,17 +74,18 @@ const history = () => {
 
   useEffect(() => {
     fetchUserWorkouts();
-    
+
   }, []);
 
 
 
 
   return (
-    <SafeAreaView edges={['top']} style={styles.viewContainer}>
+    <SafeAreaView edges={['top']} style={[styles.viewContainer, { backgroundColor: colors.background }]}>
+      <LoadingComponent visible={loading} />
 
       <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>Yürüyüş Geçmişi</Text>
+        <Text style={[styles.headerText, { color: colors.text }]}>Yürüyüş Geçmişi</Text>
       </View>
       <View style={styles.searchContainer}>
         <SearchBar onChangeText={handleSearch} />
@@ -66,8 +100,9 @@ const history = () => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#22c55e"
-            colors={['#22c55e']}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+
           />
         }
         renderItem={({ item, index }) => (
@@ -75,9 +110,11 @@ const history = () => {
             <RouteHistoryComponent
               routeName={item.workout_name}
               date={item.created_at}
-              distance={(item.distance/1000).toFixed(2)}
+              distance={(item.distance / 1000).toFixed(2)}
               location={item.location}
               duration={item.duration}
+              path={item.path}
+              onDelete={() => handleDelete(item.id, item.workout_name)}
               onPress={() => {
                 router.navigate({
                   pathname: 'private/history/[routeId]',
@@ -108,7 +145,6 @@ const styles = StyleSheet.create({
   viewContainer: {
     flex: 1,
     width: '100%',
-    backgroundColor: '#0f172a',
   },
   searchContainer: {
     width: '100%',
@@ -132,7 +168,6 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 32,
     fontWeight: '900',
-    color: '#fff',
     letterSpacing: -0.5,
   },
 });

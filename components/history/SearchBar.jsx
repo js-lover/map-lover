@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { Feather } from '@expo/vector-icons';
+import { useTheme } from '@/providers/ThemeProvider';
 
 export default function SearchBar({ placeholder = 'Ara...', onChangeText }) {
+  const { colors } = useTheme();
   const [value, setValue] = useState('');
   const [focused, setFocused] = useState(false);
 
   const animatedStyle = useAnimatedStyle(() => ({
     width: withTiming(focused ? '100%' : '100%', { duration: 300 }),
-    borderColor: withTiming(focused ? 'rgba(34, 197, 94, 0.5)' : 'rgba(255, 255, 255, 0.1)', { duration: 200 }),
+    borderColor: withTiming(focused ? colors.primary + '80' : colors.border, { duration: 200 }),
   }));
 
   const handleClear = () => {
@@ -18,14 +20,14 @@ export default function SearchBar({ placeholder = 'Ara...', onChangeText }) {
   };
 
   return (
-    <Animated.View style={[styles.container, animatedStyle]}>
+    <Animated.View style={[styles.container, { backgroundColor: colors.card }, animatedStyle]}>
       <View style={styles.iconContainer}>
-        <Feather name="search" size={18} color={focused ? '#22c55e' : '#64748b'} />
+        <Feather name="search" size={18} color={focused ? colors.primary : colors.textMuted} />
       </View>
       <TextInput
-        style={styles.input}
+        style={[styles.input, { color: colors.text }]}
         placeholder={placeholder}
-        placeholderTextColor="#64748b"
+        placeholderTextColor={colors.textMuted}
         value={value}
         onChangeText={(text) => {
           setValue(text);
@@ -33,12 +35,12 @@ export default function SearchBar({ placeholder = 'Ara...', onChangeText }) {
         }}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        selectionColor="#22c55e"
+        selectionColor={colors.primary}
       />
       {value.length > 0 && (
         <TouchableOpacity onPress={handleClear} style={styles.clearButton} activeOpacity={0.7}>
-          <View style={styles.clearIconContainer}>
-            <Feather name="x" size={14} color="#fff" />
+          <View style={[styles.clearIconContainer, { backgroundColor: colors.surfaceSecondary }]}>
+            <Feather name="x" size={14} color={colors.text} />
           </View>
         </TouchableOpacity>
       )}
@@ -51,11 +53,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 14,
     height: 50,
     paddingHorizontal: 4,
-    backgroundColor: '#1e293b',
   },
   iconContainer: {
     width: 40,
@@ -65,7 +65,6 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    color: '#fff',
     fontSize: 16,
     fontWeight: '500',
   },
@@ -76,7 +75,6 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: '#475569',
     justifyContent: 'center',
     alignItems: 'center',
   },

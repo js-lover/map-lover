@@ -3,24 +3,28 @@ import { Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function profileLayout() {
-  
-  if(Platform.OS==='ios'){
 
-  return (
-    <Stack>
-      <Stack.Screen name="index" options={{ headerShown:false }} />
-    </Stack>
-  );
+  if (Platform.OS === 'ios') {
+
+    return (
+      <Stack>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="privacy" options={{ headerShown: true, headerBackButtonDisplayMode: 'generic', headerTransparent: true, title: '' }} />
+        <Stack.Screen name="help" options={{ headerShown: true, headerBackButtonDisplayMode: 'generic', headerTransparent: true, title: '' }} />
+      </Stack>
+    );
 
   }
-  if(Platform.OS==='android'){
+  if (Platform.OS === 'android') {
 
     return (
 
       <Stack>
-        <Stack.Screen name="index" options={{ headerShown:false }} />
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="privacy" options={{ headerShown: true, headerBackButtonDisplayMode: 'generic', headerTransparent: true, title: '' }} />
+        <Stack.Screen name="help" options={{ headerShown: true, headerBackButtonDisplayMode: 'generic', headerTransparent: true, title: '' }} />
       </Stack>
     );
   }
-  
+
 }

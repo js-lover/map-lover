@@ -1,10 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Redirect } from 'expo-router';
 import { NativeTabs, Icon, Label } from 'expo-router/unstable-native-tabs';
 import { useAuthContext } from '../../hooks/useAuthContext';
+import useLocationStore from '../../store/useLocationStore';
 
 export default function PrivateLayout() {
   const { isLoading, isLoggedIn } = useAuthContext();
+  const fetchUserAddress = useLocationStore((state) => state.fetchUserAddress);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchUserAddress();
+    }
+  }, [isLoggedIn]);
 
   if (isLoading) return null; // veya Loading bileşeni render et
   if (!isLoggedIn) return <Redirect href="/public" />;

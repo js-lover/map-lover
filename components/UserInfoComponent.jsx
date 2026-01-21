@@ -1,33 +1,39 @@
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { AvatarComponent } from './';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '../providers/ThemeProvider';
 
-const UserInfoComponent = ({ username, memberDate, avatarUrl, onPress }) => {
+const UserInfoComponent = ({ username, memberDate, avatarUrl, location, onPress }) => {
+  const { colors } = useTheme();
+
   return (
     <View style={styles.container}>
       {/* Avatar Section */}
       <View style={styles.avatarSection}>
         <AvatarComponent avatarUrl={avatarUrl} onPress={onPress} size={90} />
-        <TouchableOpacity style={styles.editBadge} onPress={onPress} activeOpacity={0.8}>
+        <TouchableOpacity
+          style={[styles.editBadge, { backgroundColor: colors.primary, borderColor: colors.card }]}
+          onPress={onPress}
+          activeOpacity={0.8}
+        >
           <Ionicons name="camera" size={14} color="#fff" />
         </TouchableOpacity>
       </View>
 
       {/* Info Section */}
       <View style={styles.infoSection}>
-        <Text style={styles.username}>{username || 'Kullanıcı'}</Text>
+        <Text style={[styles.username, { color: colors.text }]}>{username || 'Kullanıcı'}</Text>
 
         <View style={styles.infoRow}>
-          <Ionicons name="calendar-outline" size={14} color="#22c55e" />
-          <Text style={styles.infoText}>
+          <Ionicons name="calendar-outline" size={14} color={colors.primary} />
+          <Text style={[styles.infoText, { color: colors.textSecondary }]}>
             {memberDate ? `${memberDate}'den beri üye` : 'Yeni üye'}
           </Text>
         </View>
 
         <View style={styles.infoRow}>
-          <Ionicons name="location-outline" size={14} color="#22c55e" />
-          <Text style={styles.infoText}>Manisa, Türkiye</Text>
+          <Ionicons name="location-outline" size={14} color={colors.primary} />
+          <Text style={[styles.infoText, { color: colors.textSecondary }]}>{location || 'Konum alınıyor...'}</Text>
         </View>
       </View>
     </View>
@@ -53,11 +59,9 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#22c55e',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: '#1e293b',
   },
   infoSection: {
     flex: 1,
@@ -66,7 +70,6 @@ const styles = StyleSheet.create({
   username: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#fff',
     letterSpacing: -0.3,
   },
   infoRow: {
@@ -77,7 +80,6 @@ const styles = StyleSheet.create({
   infoText: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#94a3b8',
   },
 });
 

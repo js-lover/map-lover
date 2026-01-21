@@ -15,11 +15,46 @@ const haversineDistance = (lat1, lon1, lat2, lon2) => {
 
 const useLocationStore = create((set, get) => ({
   location: null,
+  userAddress: null, // Global user address
   totalDistance: 0,
   segments: [],
   lastCoords: null,
   subscription: null,
   currentPace: '00:00',
+
+  fetchUserAddress: async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') return;
+
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      });
+
+      const { latitude, longitude } = location.coords;
+      const addressResponse = await Location.reverseGeocodeAsync({ latitude, longitude });
+
+      if (addressResponse && addressResponse.length > 0) {
+        const addr = addressResponse[0];
+        // Şehir ve Ülke formatı (Örn: Manisa, Türkiye)
+        // region (il) veya city (şehir merkezi) kullanabiliriz.
+        // addressResponse genelde: city, region, country, name, street vs döner.
+        const city = addr.city || addr.subregion || addr.region || '';
+        const country = addr.country || '';
+
+        let formattedAddress = '';
+        if (city && country) {
+          formattedAddress = `${city}, ${country}`;
+        } else {
+          formattedAddress = city || country || 'Konum Bilinmiyor';
+        }
+
+        set({ userAddress: formattedAddress });
+      }
+    } catch (error) {
+      console.log('Error fetching user address:', error);
+    }
+  },
 
   startWatching: async (isRunning, isVisible) => {
     // Varsa eski aboneliği temizle

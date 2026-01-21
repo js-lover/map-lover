@@ -9,32 +9,39 @@ import {
   ScrollView,
   Dimensions,
   TouchableOpacity,
+  Alert
 } from 'react-native';
 import { AppleMaps, GoogleMaps } from 'expo-maps';
 import { AppleMapsMapType } from 'expo-maps/build/apple/AppleMaps.types';
 import { Ionicons, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '@/providers/ThemeProvider';
 
 import useWorkoutSummaryStore from '@/store/useWorkoutSummaryStore';
 import { LoadingComponent } from '.';
 import Button from './profile/Button';
 import { WorkoutHistoryService } from '@/services/workoutService';
+import { simplifyPath, encodePolyline } from '@/lib/utils/polyline';
 
 const { width } = Dimensions.get('window');
 
 // Stat Item Component
-const StatItem = ({ icon, label, value }) => (
-  <View style={styles.statItem}>
-    <View style={styles.statIconContainer}>
-      <Ionicons name={icon} size={18} color="#22c55e" />
+const StatItem = ({ icon, label, value }) => {
+  const { colors } = useTheme();
+  return (
+    <View style={[styles.statItem, { backgroundColor: colors.surfaceSecondary }]}>
+      <View style={[styles.statIconContainer, { backgroundColor: colors.primarySubtle }]}>
+        <Ionicons name={icon} size={18} color={colors.primary} />
+      </View>
+      <Text style={[styles.statValue, { color: colors.text }]}>{value}</Text>
+      <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{label}</Text>
     </View>
-    <Text style={styles.statValue}>{value}</Text>
-    <Text style={styles.statLabel}>{label}</Text>
-  </View>
-);
+  );
+};
 
 const ModalComponent = ({ onSaveToSupabase }) => {
+  const { colors, isDark } = useTheme();
   const { summary, isModalVisible, closeModal } = useWorkoutSummaryStore();
   const [localName, setLocalName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -79,8 +86,16 @@ const ModalComponent = ({ onSaveToSupabase }) => {
         pace: summary.pace,
         steps: summary.steps,
         calories: summary.calories,
-        path: flatCoords,
+        path: encodePolyline(simplifyPath(flatCoords, 0.00002)),
       };
+
+
+      if (summary.distance < 200) {
+        closeModal();
+        Alert.alert('Mesafe Uyarısı', 'Mesafe 200 m den az olamaz!');
+        return;
+      }
+
 
       const result = await WorkoutHistoryService.createWorkout(finalData);
       if (result.success) {
@@ -101,7 +116,7 @@ const ModalComponent = ({ onSaveToSupabase }) => {
       animationType="slide"
       visible={isModalVisible}
       onRequestClose={closeModal}>
-      <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top']}>
 
         {isLoading && <LoadingComponent visible={isLoading} />}
 
@@ -111,12 +126,11 @@ const ModalComponent = ({ onSaveToSupabase }) => {
         >
           {/* Header */}
           <View style={styles.header}>
-            
-            <Text style={styles.headerTitle}>Antrenman Özeti</Text>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>Antrenman Özeti</Text>
           </View>
 
           {/* Map Container */}
-          <View style={styles.mapContainer}>
+          <View style={[styles.mapContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             {Platform.OS === 'ios' ? (
               <AppleMaps.View
                 key={`map-${flatCoords.length}`}
@@ -153,24 +167,24 @@ const ModalComponent = ({ onSaveToSupabase }) => {
           </View>
 
           {/* Stats Card */}
-          <View style={styles.statsCard}>
+          <View style={[styles.statsCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             {/* Workout Name Input */}
             <View style={styles.inputWrapper}>
-              <Text style={styles.label}>Antrenman Adı</Text>
-              <View style={styles.inputContainer}>
-                <Feather name="edit-3" size={18} color="#64748b" style={styles.inputIcon} />
+              <Text style={[styles.label, { color: colors.textSecondary }]}>Antrenman Adı</Text>
+              <View style={[styles.inputContainer, { backgroundColor: colors.background, borderColor: colors.border }]}>
+                <Feather name="edit-3" size={18} color={colors.textMuted} style={styles.inputIcon} />
                 <TextInput
-                  style={styles.txtInput}
+                  style={[styles.txtInput, { color: colors.text }]}
                   value={localName}
                   onChangeText={setLocalName}
                   placeholder="Antrenman adı..."
-                  placeholderTextColor="#475569"
+                  placeholderTextColor={colors.textMuted}
                 />
               </View>
             </View>
 
             {/* Divider */}
-            <View style={styles.divider} />
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
             {/* Stats Grid */}
             <View style={styles.statsGrid}>
@@ -210,7 +224,7 @@ const ModalComponent = ({ onSaveToSupabase }) => {
               activeOpacity={0.9}
             >
               <LinearGradient
-                colors={['#22c55e', '#16a34a']}
+                colors={[colors.primary, '#16a34a']}
                 style={styles.saveBtnGradient}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
@@ -225,7 +239,7 @@ const ModalComponent = ({ onSaveToSupabase }) => {
               onPress={closeModal}
               activeOpacity={0.7}
             >
-              <Text style={styles.discardTxt}>Vazgeç</Text>
+              <Text style={[styles.discardTxt, { color: colors.danger }]}>Vazgeç</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -237,7 +251,6 @@ const ModalComponent = ({ onSaveToSupabase }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#0f172a',
   },
   scrollContent: {
     alignItems: 'center',
@@ -249,43 +262,24 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 20,
   },
-  closeButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: '#1e293b',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
   headerTitle: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#fff',
     letterSpacing: -0.5,
-  },
-  headerSubtitle: {
-    fontSize: 16,
-    color: '#64748b',
-    marginTop: 4,
   },
   mapContainer: {
     width: width * 0.92,
     height: 200,
     borderRadius: 20,
     overflow: 'hidden',
-    backgroundColor: '#1e293b',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
   },
   statsCard: {
     marginVertical: 20,
     width: width * 0.92,
     borderRadius: 20,
     padding: 20,
-    backgroundColor: '#1e293b',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
   },
   inputWrapper: {
     width: '100%'
@@ -293,7 +287,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#64748b',
     marginBottom: 8,
     marginLeft: 4,
     textTransform: 'uppercase',
@@ -302,10 +295,8 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0f172a',
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
   },
   inputIcon: {
     marginLeft: 16,
@@ -316,11 +307,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     fontSize: 16,
     fontWeight: '600',
-    color: '#fff',
   },
   divider: {
     height: 1,
-    backgroundColor: 'rgba(255,255,255,0.1)',
     marginVertical: 20,
   },
   statsGrid: {
@@ -332,7 +321,6 @@ const styles = StyleSheet.create({
   statItem: {
     width: '30%',
     alignItems: 'center',
-    backgroundColor: 'rgba(34, 197, 94, 0.08)',
     borderRadius: 14,
     padding: 12,
     gap: 6,
@@ -341,19 +329,16 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 10,
-    backgroundColor: 'rgba(34, 197, 94, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   statValue: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#fff',
   },
   statLabel: {
     fontSize: 11,
     fontWeight: '500',
-    color: '#64748b',
   },
   actionContainer: {
     width: width * 0.92,
@@ -363,7 +348,6 @@ const styles = StyleSheet.create({
   saveBtn: {
     borderRadius: 14,
     overflow: 'hidden',
-    shadowColor: '#22c55e',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -387,7 +371,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   discardTxt: {
-    color: '#ef4444',
     fontSize: 16,
     fontWeight: '600'
   },

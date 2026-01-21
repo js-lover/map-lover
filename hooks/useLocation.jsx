@@ -21,7 +21,7 @@ const useLocation = (isActive, totalSeconds, isStarted) => {
   const [location, setLocation] = useState(null);
   const [totalDistance, setTotalDistance] = useState(0);
   const [segments, setSegments] = useState([]);
-  
+
   const lastCoords = useRef(null);
   const subscriptionRef = useRef(null);
 
@@ -38,33 +38,37 @@ const useLocation = (isActive, totalSeconds, isStarted) => {
 
     const startWatching = async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      
+
       if (status !== 'granted') return;
 
       subscriptionRef.current = await Location.watchPositionAsync(
         {
-          accuracy: Location.Accuracy.BestForNavigation,
-          distanceInterval: 5, // Test: 1m, Prod: 5m
-          timeInterval: 1000,
+          accuracy: Location.Accuracy.High, // Battery Optimization: Switch to High
+          distanceInterval: 5,
+          timeInterval: 4000, // Battery Optimization: 4s interval
         },
         (loc) => {
           if (!isMounted) return;
-          const { latitude, longitude, accuracy } = loc.coords;
+          const { latitude, longitude, accuracy, speed } = loc.coords;
           const newPoint = { latitude, longitude };
-          
+
           // Her zaman güncel konumu set et (Harita takibi için)
           setLocation(newPoint);
 
 
           // Prod: accuracy > 25 ise güvenme
-          if (accuracy > 25) return; 
+          if (accuracy > 25) return;
+
+          // Hız kontrolü (GPS sapmalarını önlemek için)
+          // 25 km/h (yaklaşık 7 m/s) üzerindeki hızlar yürüyüş için anormal kabul edilir
+          if (speed && speed > 7) return;
 
           setSegments(prevSegments => {
             const currentColor = isActive ? '#0E7AFE' : '#FF3B30';
-            
+
             if (prevSegments.length === 0) {
               return [{ coords: [newPoint], color: currentColor }];
-              
+
             }
 
             const lastSegment = prevSegments[prevSegments.length - 1];
@@ -86,9 +90,10 @@ const useLocation = (isActive, totalSeconds, isStarted) => {
           // Sadece aktifken ve önceki koordinat varken mesafe hesapla
           if (isActive && lastCoords.current) {
             const dist = haversineDistance(lastCoords.current.latitude, lastCoords.current.longitude, latitude, longitude);
-            if (dist > 1.5) setTotalDistance(prev => prev + dist);
+            // Noise Filter: 3m (önceki 1.5m) altındaki değişimleri yoksay
+            if (dist > 3) setTotalDistance(prev => prev + dist);
           }
-          
+
           lastCoords.current = newPoint;
         }
       );
@@ -116,13 +121,13 @@ const useLocation = (isActive, totalSeconds, isStarted) => {
     lastCoords.current = null;
   };
 
-  return { 
-    latitude: location?.latitude, 
-    longitude: location?.longitude, 
-    totalDistance, 
-    segments, 
-    pace, 
-    resetLocation 
+  return {
+    latitude: location?.latitude,
+    longitude: location?.longitude,
+    totalDistance,
+    segments,
+    pace,
+    resetLocation
   };
 };
 

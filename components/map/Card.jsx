@@ -1,9 +1,10 @@
 import React, { useMemo, useEffect } from 'react';
-import { StyleSheet, View, Dimensions, Alert, Text } from 'react-native';
+import { StyleSheet, View, Dimensions, Alert, Text, TouchableOpacity } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '@/providers/ThemeProvider';
 
 // Store Importları
 import useStopwatchStore from '@/store/useStopWatchStore';
@@ -16,6 +17,7 @@ import { Button } from '../index';
 const { width } = Dimensions.get('window');
 
 const Card = () => {
+  const { theme, colors, isDark } = useTheme();
   // --- WORKOUT SUMMARY STORE ---
   const { setSummary } = useWorkoutSummaryStore();
 
@@ -101,58 +103,62 @@ const Card = () => {
 
   return (
     <View style={styles.cardWrapper}>
-      <BlurView intensity={80} tint="dark" style={styles.container}>
+      <BlurView
+        intensity={80}
+        tint={isDark ? "dark" : "light"}
+        style={[styles.container, { backgroundColor: isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.75)', borderColor: colors.border }]}
+      >
         {/* Primary Metric - Distance */}
         <View style={styles.primaryMetric}>
-          <Text style={styles.primaryLabel}>MESAFE</Text>
+          <Text style={[styles.primaryLabel, { color: colors.textSecondary }]}>MESAFE</Text>
           <View style={styles.primaryValueRow}>
-            <Text style={styles.primaryValue}>{(totalDistance / 1000).toFixed(2)}</Text>
-            <Text style={styles.primaryUnit}>km</Text>
+            <Text style={[styles.primaryValue, { color: colors.primary }]}>{(totalDistance / 1000).toFixed(2)}</Text>
+            <Text style={[styles.primaryUnit, { color: colors.textSecondary }]}>km</Text>
           </View>
         </View>
 
         {/* Divider */}
-        <View style={styles.divider} />
+        <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
         {/* Stats Grid */}
         <View style={styles.metricsGrid}>
           <View style={styles.statItem}>
-            <View style={styles.statIconContainer}>
-              <Ionicons name="time-outline" size={18} color="#22c55e" />
+            <View style={[styles.statIconContainer, { backgroundColor: colors.primarySubtle }]}>
+              <Ionicons name="time-outline" size={18} color={colors.primary} />
             </View>
             <View>
-              <Text style={[styles.statValue, styles.tabularNumbers]}>{formattedTime}</Text>
-              <Text style={styles.statLabel}>Süre</Text>
+              <Text style={[styles.statValue, styles.tabularNumbers, { color: colors.text }]}>{formattedTime}</Text>
+              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Süre</Text>
             </View>
           </View>
 
           <View style={styles.statItem}>
-            <View style={styles.statIconContainer}>
-              <Ionicons name="footsteps-outline" size={18} color="#22c55e" />
+            <View style={[styles.statIconContainer, { backgroundColor: colors.primarySubtle }]}>
+              <Ionicons name="footsteps-outline" size={18} color={colors.primary} />
             </View>
             <View>
-              <Text style={styles.statValue}>0</Text>
-              <Text style={styles.statLabel}>Adım</Text>
+              <Text style={[styles.statValue, { color: colors.text }]}>0</Text>
+              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Adım</Text>
             </View>
           </View>
 
           <View style={styles.statItem}>
-            <View style={styles.statIconContainer}>
-              <Ionicons name="speedometer-outline" size={18} color="#22c55e" />
+            <View style={[styles.statIconContainer, { backgroundColor: colors.primarySubtle }]}>
+              <Ionicons name="speedometer-outline" size={18} color={colors.primary} />
             </View>
             <View>
-              <Text style={styles.statValue}>{currentPace}</Text>
-              <Text style={styles.statLabel}>Tempo</Text>
+              <Text style={[styles.statValue, { color: colors.text }]}>{currentPace}</Text>
+              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Tempo</Text>
             </View>
           </View>
 
           <View style={styles.statItem}>
-            <View style={styles.statIconContainer}>
-              <Ionicons name="flame-outline" size={18} color="#22c55e" />
+            <View style={[styles.statIconContainer, { backgroundColor: colors.primarySubtle }]}>
+              <Ionicons name="flame-outline" size={18} color={colors.primary} />
             </View>
             <View>
-              <Text style={styles.statValue}>0</Text>
-              <Text style={styles.statLabel}>Kalori</Text>
+              <Text style={[styles.statValue, { color: colors.text }]}>0</Text>
+              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Kalori</Text>
             </View>
           </View>
         </View>
@@ -161,29 +167,45 @@ const Card = () => {
         <View style={styles.actionArea}>
           {!isVisible ? (
             <Animated.View entering={FadeIn} exiting={FadeOut} layout={LinearTransition} style={{ width: '100%' }}>
-              <Button
-                title="YÜRÜYÜŞE BAŞLA"
-                onPress={start}
-                buttonStyle={styles.startBtn}
-                textStyle={styles.buttonText}
-                icon={<Ionicons name="walk" size={22} color="#fff" />}
-              />
+              <TouchableOpacity onPress={start} activeOpacity={0.8}>
+                <LinearGradient
+                  colors={[colors.primary, '#16a34a']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.startBtnGradient}
+                >
+                  <Ionicons name="walk" size={22} color="#fff" />
+                  <Text style={styles.buttonText}>YÜRÜYÜŞE BAŞLA</Text>
+                </LinearGradient>
+              </TouchableOpacity>
             </Animated.View>
           ) : (
             <Animated.View entering={FadeIn} layout={LinearTransition} style={styles.activeButtonContainer}>
-              <Button
-                onPress={stop}
-                buttonStyle={styles.pauseBtn}
-                icon={isPaused
-                  ? <Ionicons name="play" size={28} color="#fff" />
-                  : <Ionicons name="pause" size={28} color="#fff" />
-                }
-              />
-              <Button
-                onPress={handleFinish}
-                buttonStyle={styles.stopBtn}
-                icon={<Ionicons name="stop" size={28} color="#fff" />}
-              />
+              <TouchableOpacity onPress={stop} activeOpacity={0.8} style={styles.flex1}>
+                <LinearGradient
+                  colors={isPaused ? [colors.primary, '#16a34a'] : [colors.warning, '#d97706']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.actionBtnGradient}
+                >
+                  <Ionicons
+                    name={isPaused ? "play" : "pause"}
+                    size={28}
+                    color="#fff"
+                  />
+                </LinearGradient>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={handleFinish} activeOpacity={0.8} style={styles.flex1}>
+                <LinearGradient
+                  colors={[colors.danger, '#dc2626']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.actionBtnGradient}
+                >
+                  <Ionicons name="stop" size={28} color="#fff" />
+                </LinearGradient>
+              </TouchableOpacity>
             </Animated.View>
           )}
         </View>
@@ -205,8 +227,6 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    backgroundColor: 'rgba(15, 23, 42, 0.85)',
   },
   primaryMetric: {
     alignItems: 'center',
@@ -215,7 +235,6 @@ const styles = StyleSheet.create({
   primaryLabel: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#64748b',
     letterSpacing: 1.5,
     marginBottom: 2,
   },
@@ -226,19 +245,16 @@ const styles = StyleSheet.create({
   primaryValue: {
     fontSize: 40,
     fontWeight: '700',
-    color: '#22c55e',
     letterSpacing: -2,
     fontVariant: ['tabular-nums'],
   },
   primaryUnit: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#64748b',
     marginLeft: 4,
   },
   divider: {
     height: 1,
-    backgroundColor: 'rgba(255,255,255,0.1)',
     marginVertical: 10,
   },
   metricsGrid: {
@@ -254,20 +270,17 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 8,
-    backgroundColor: 'rgba(34, 197, 94, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   statValue: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#fff',
     textAlign: 'center',
   },
   statLabel: {
     fontSize: 11,
     fontWeight: '500',
-    color: '#64748b',
     textAlign: 'center',
     marginTop: 2,
   },
@@ -281,38 +294,29 @@ const styles = StyleSheet.create({
   activeButtonContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 16
+    gap: 12,
+    width: '100%',
   },
-  startBtn: {
-    backgroundColor: '#22c55e',
-    borderRadius: 8,
+  flex1: {
+    flex: 1,
+  },
+  startBtnGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
     height: 56,
-    borderWidth: 0,
-    shadowColor: '#22c55e',
+    borderRadius: 28,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 6,
   },
-  pauseBtn: {
-    width: "155",
+  actionBtnGradient: {
     height: 56,
-    backgroundColor: '#f59e0b',
-    borderRadius: 8,
-    borderWidth: 0,
-    shadowColor: '#f59e0b',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  stopBtn: {
-    width: "155",
-    height: 56,
-    backgroundColor: '#ef4444',
-    borderRadius: 8,
-    borderWidth: 0,
-    shadowColor: '#ef4444',
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -320,9 +324,9 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
-    fontWeight: '700',
-    fontSize: 15,
-    letterSpacing: 0.5,
+    fontWeight: '800',
+    fontSize: 16,
+    letterSpacing: 1,
   }
 });
 

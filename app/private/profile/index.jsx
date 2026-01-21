@@ -1,4 +1,5 @@
-import { StyleSheet, ScrollView, RefreshControl, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, ScrollView, RefreshControl, Text, View, TouchableOpacity, Alert } from 'react-native';
+import { router } from 'expo-router';
 import { useEffect, useState, useCallback } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -11,27 +12,34 @@ import {
 } from '../../../components';
 
 import { useAuthContext } from '../../../hooks/useAuthContext';
-import { signOut } from '../../../services/auth.services';
+import { useTheme } from '../../../providers/ThemeProvider';
+import { signOut, deleteUserAccount } from '../../../services/auth.services';
 import { pickAndUploadAvatar } from '../../../services/uploadAvatar';
 import { supabase } from '../../../lib/supabase';
+import { getDailyUserStats, getWeeklyUserStats, getMonthlyUserStats } from '../../../services/getUserStats';
+
+import useLocationStore from '../../../store/useLocationStore';
 
 const Profile = () => {
-
-
+  const { theme, colors, isDark, toggleTheme } = useTheme();
   const { profile: contextProfile, session } = useAuthContext();
+  const userAddress = useLocationStore((state) => state.userAddress);
 
   const [profile, setProfile] = useState(contextProfile);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(null);
 
+  const [stats, setStats] = useState({
+    daily: { totalDistance: 0, totalDuration: 0, totalCalories: 0, totalSteps: 0, totalWorkouts: 0 },
+    weekly: { totalDistance: 0, totalDuration: 0, totalCalories: 0, totalSteps: 0, totalWorkouts: 0 },
+    monthly: { totalDistance: 0, totalDuration: 0, totalCalories: 0, totalSteps: 0, totalWorkouts: 0 },
+  });
+
   const fullName = profile?.full_name;
   const date = profile?.created_at;
   const memberDate = date ? new Date(date).getFullYear() : '';
 
-  // -------------------------------------------------------------
-  // ⭐ PROFİLİ BURADA FETCH ET
-  // -------------------------------------------------------------
   const fetchProfile = async () => {
     try {
       if (!session?.user) return;
@@ -50,18 +58,34 @@ const Profile = () => {
     }
   };
 
-  // -------------------------------------------------------------
-  // ⭐ İlk load & context değişince senkronize et
-  // -------------------------------------------------------------
+  const fetchStats = async () => {
+    try {
+      const [daily, weekly, monthly] = await Promise.all([
+        getDailyUserStats(),
+        getWeeklyUserStats(),
+        getMonthlyUserStats(),
+      ]);
+
+      setStats({
+        daily: daily || { totalDistance: 0, totalDuration: 0, totalCalories: 0, totalSteps: 0, totalWorkouts: 0 },
+        weekly: weekly || { totalDistance: 0, totalDuration: 0, totalCalories: 0, totalSteps: 0, totalWorkouts: 0 },
+        monthly: monthly || { totalDistance: 0, totalDuration: 0, totalCalories: 0, totalSteps: 0, totalWorkouts: 0 },
+      });
+    } catch (error) {
+      console.log('Error fetching user stats:', error);
+    }
+  };
+
+
+  // First load & context change sync
   useEffect(() => {
     if (contextProfile) {
       setProfile(contextProfile);
     }
+    fetchStats();
   }, [contextProfile]);
 
-  // -------------------------------------------------------------
-  // ⭐ Avatar URL resolve + cache busting
-  // -------------------------------------------------------------
+  // Avatar URL resolve + cache busting
   useEffect(() => {
     let mounted = true;
 
@@ -109,13 +133,11 @@ const Profile = () => {
     };
   }, [profile]);
 
-  // -------------------------------------------------------------
-  // ⭐ Pull to Refresh
-  // -------------------------------------------------------------
+  // Pull to refresh
   const onRefresh = useCallback(async () => {
     try {
       setRefreshing(true);
-      await fetchProfile();
+      await Promise.all([fetchProfile(), fetchStats()]);
     } catch (err) {
       console.log('Refresh error:', err);
     } finally {
@@ -123,9 +145,7 @@ const Profile = () => {
     }
   }, []);
 
-  // -------------------------------------------------------------
-  // ⭐ Avatar değiştir
-  // -------------------------------------------------------------
+  // Change avatar
   const handleChangeAvatar = async () => {
     try {
       setLoading(true);
@@ -133,7 +153,7 @@ const Profile = () => {
       const result = await pickAndUploadAvatar(profile.id, profile.avatar_url);
       if (result?.error) return;
 
-      await fetchProfile(); // ⭐ SADECE BURASI
+      await fetchProfile();
     } catch (err) {
       console.log('Avatar change error:', err);
     } finally {
@@ -141,39 +161,68 @@ const Profile = () => {
     }
   };
 
-  // -------------------------------------------------------------
-  // ⭐ Logout
-  // -------------------------------------------------------------
+  //Login
   const handleLogout = async () => {
     setLoading(true);
     await signOut();
     setLoading(false);
   };
 
-  // -------------------------------------------------------------
-  // Menu Item Component
-  // -------------------------------------------------------------
+  // Delete Account
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      "Hesabımı Sil",
+      "Hesabınızı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz ve tüm verileriniz silinecektir.",
+      [
+        {
+          text: "İptal",
+          style: "cancel"
+        },
+        {
+          text: "Evet, Sil",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setLoading(true);
+              await deleteUserAccount();
+            } catch (error) {
+              Alert.alert("Hata", "Hesap silinirken bir hata oluştu.");
+              console.error("Delete account error:", error);
+            } finally {
+              setLoading(false);
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  //Menu Item
   const MenuItem = ({ icon, iconType = 'ionicons', title, subtitle, onPress, showArrow = true, danger = false }) => {
     const IconComponent = iconType === 'material' ? MaterialIcons : iconType === 'feather' ? Feather : Ionicons;
 
     return (
       <TouchableOpacity style={styles.menuItem} onPress={onPress} activeOpacity={0.7}>
-        <View style={[styles.menuIconContainer, danger && styles.menuIconDanger]}>
-          <IconComponent name={icon} size={20} color={danger ? '#ef4444' : '#22c55e'} />
+        <View style={[
+          styles.menuIconContainer,
+          { backgroundColor: danger ? colors.dangerSubtle : colors.primarySubtle },
+          danger && styles.menuIconDanger
+        ]}>
+          <IconComponent name={icon} size={20} color={danger ? colors.danger : colors.primary} />
         </View>
         <View style={styles.menuContent}>
-          <Text style={[styles.menuTitle, danger && styles.menuTitleDanger]}>{title}</Text>
-          {subtitle && <Text style={styles.menuSubtitle}>{subtitle}</Text>}
+          <Text style={[styles.menuTitle, { color: colors.text }, danger && styles.menuTitleDanger]}>{title}</Text>
+          {subtitle && <Text style={[styles.menuSubtitle, { color: colors.textSecondary }]}>{subtitle}</Text>}
         </View>
         {showArrow && (
-          <Feather name="chevron-right" size={20} color="#475569" />
+          <Feather name="chevron-right" size={20} color={colors.textMuted} />
         )}
       </TouchableOpacity>
     );
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <LoadingComponent visible={loading} />
 
       <ScrollView
@@ -183,20 +232,20 @@ const Profile = () => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#22c55e"
-            colors={['#22c55e']}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
           />
         }
       >
         {/* Header Section */}
         <View style={styles.headerSection}>
-          <Text style={styles.pageTitle}>Profil</Text>
+          <Text style={[styles.pageTitle, { color: colors.text }]}>Profil</Text>
         </View>
 
         {/* User Info Card */}
-        <View style={styles.userCard}>
+        <View style={[styles.userCard, { backgroundColor: colors.card }]}>
           <LinearGradient
-            colors={['rgba(34, 197, 94, 0.1)', 'rgba(34, 197, 94, 0.05)']}
+            colors={[colors.primarySubtle, colors.border]}
             style={styles.userCardGradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
@@ -205,56 +254,52 @@ const Profile = () => {
             username={fullName}
             memberDate={memberDate}
             avatarUrl={avatarUrl}
+            location={userAddress}
             onPress={handleChangeAvatar}
           />
         </View>
 
         {/* Stats Section */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>İstatistikler</Text>
-          <View style={styles.statsCard}>
-            <UserAverageStats />
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>İstatistikler</Text>
+          <View style={[styles.statsCard, { backgroundColor: colors.card }]}>
+            <UserAverageStats stats={stats} />
           </View>
         </View>
 
         {/* Settings Section */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Ayarlar</Text>
-          <View style={styles.menuCard}>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Ayarlar</Text>
+          <View style={[styles.menuCard, { backgroundColor: colors.card }]}>
+
             <MenuItem
-              icon="person-outline"
-              title="Profili Düzenle"
-              subtitle="Ad, soyad ve bilgilerinizi güncelleyin"
-              onPress={() => { }}
+              icon={isDark ? "moon-outline" : "sunny-outline"}
+              title="Görünüm"
+              subtitle={isDark ? "Koyu Tema" : "Açık Tema"}
+              onPress={toggleTheme}
+              showArrow={false}
             />
-            <View style={styles.menuDivider} />
-            <MenuItem
-              icon="notifications-outline"
-              title="Bildirimler"
-              subtitle="Bildirim tercihlerinizi yönetin"
-              onPress={() => { }}
-            />
-            <View style={styles.menuDivider} />
+            <View style={[styles.menuDivider, { backgroundColor: colors.border }]} />
             <MenuItem
               icon="shield-checkmark-outline"
               title="Gizlilik"
               subtitle="Gizlilik ayarlarınızı düzenleyin"
-              onPress={() => { }}
+              onPress={() => router.push('/private/profile/privacy')}
             />
           </View>
         </View>
 
         {/* Account Section */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Hesap</Text>
-          <View style={styles.menuCard}>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Hesap</Text>
+          <View style={[styles.menuCard, { backgroundColor: colors.card }]}>
             <MenuItem
               icon="help-circle-outline"
               title="Yardım & Destek"
               subtitle="SSS ve iletişim"
-              onPress={() => { }}
+              onPress={() => router.push('/private/profile/help')}
             />
-            <View style={styles.menuDivider} />
+            <View style={[styles.menuDivider, { backgroundColor: colors.border }]} />
             <MenuItem
               icon="log-out-outline"
               title="Çıkış Yap"
@@ -262,11 +307,19 @@ const Profile = () => {
               showArrow={false}
               danger
             />
+            <View style={[styles.menuDivider, { backgroundColor: colors.border }]} />
+            <MenuItem
+              icon="trash-outline"
+              title="Hesabımı Sil"
+              onPress={handleDeleteAccount}
+              showArrow={false}
+              danger
+            />
           </View>
         </View>
 
         {/* App Version */}
-        <Text style={styles.versionText}>Menza v1.0.0</Text>
+        <Text style={[styles.versionText, { color: colors.textMuted }]}>Menza v1.0.0</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -278,7 +331,6 @@ export default Profile;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0f172a',
   },
   scrollContent: {
     paddingBottom: 100,
@@ -291,14 +343,12 @@ const styles = StyleSheet.create({
   pageTitle: {
     fontSize: 32,
     fontWeight: '900',
-    color: '#fff',
     letterSpacing: -0.5,
   },
   userCard: {
     marginHorizontal: 16,
     marginTop: 16,
     borderRadius: 20,
-    backgroundColor: '#1e293b',
     overflow: 'hidden',
     padding: 16,
   },
@@ -314,23 +364,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   sectionTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#64748b',
+    fontSize: 12,
+    fontWeight: '800',
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 12,
+    letterSpacing: 1,
+    marginBottom: 8,
     marginLeft: 4,
   },
   statsCard: {
-    backgroundColor: '#1e293b',
     borderRadius: 16,
     padding: 16,
     paddingTop: 0,
     overflow: 'hidden',
   },
   menuCard: {
-    backgroundColor: '#1e293b',
     borderRadius: 16,
     overflow: 'hidden',
   },
@@ -344,7 +391,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: 'rgba(34, 197, 94, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 14,
@@ -358,25 +404,21 @@ const styles = StyleSheet.create({
   menuTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#fff',
   },
   menuTitleDanger: {
     color: '#ef4444',
   },
   menuSubtitle: {
     fontSize: 13,
-    color: '#64748b',
     marginTop: 2,
   },
   menuDivider: {
     height: 1,
-    backgroundColor: '#334155',
     marginLeft: 70,
   },
   versionText: {
     textAlign: 'center',
     fontSize: 12,
-    color: '#475569',
     marginTop: 32,
   },
 });
